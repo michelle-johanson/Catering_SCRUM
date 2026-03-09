@@ -1,0 +1,15 @@
+# Build artifacts
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+.idea/
+
+# Environment
+.env
+appsettings.Development.json
+
+# OS
+.DS_Store
