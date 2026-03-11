@@ -1,18 +1,37 @@
-using CateringAPI.Data;
+// Tyler Mitton
+// Entry point for the backend application, configures services, CORS, database, and routing.
+// backend/CateringAPI/Program.cs
+
 using Microsoft.EntityFrameworkCore;
+using CateringAPI.Data; // Required to access CateringDbContext
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
+// Register the SQLite Database
 builder.Services.AddDbContext<CateringDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite("Data Source=catering.db"));
+
+// Add support for Controllers
+builder.Services.AddControllers();
+
+// 1. Configure CORS 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactFrontend",
+        policy =>
+        {
+            // This is the Vite port React app runs on
+            policy.WithOrigins("http://localhost:5173") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+// Add OpenAPI (Swagger) for API documentation
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -20,28 +39,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseCors("AllowReactFrontend");
 
-app.MapGet("/weatherforecast", () =>
+// Map the controllers so the app knows where to route API requests
+app.MapControllers();
+
+// This responds to GET requests at /api/health with a simple 200 OK and a message
+app.MapGet("/api/health", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    return Results.Ok(new { 
+        status = "healthy", 
+        timestamp = DateTime.UtcNow 
+    });
 })
-.WithName("GetWeatherForecast");
+.WithName("GetHealthCheck");
 
+// Start the application
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
