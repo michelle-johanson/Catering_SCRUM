@@ -120,12 +120,13 @@ The frontend will run at `http://localhost:5173`
 
 ### 3. Run the Backend
 ```bash
-cd backend
+cd backend/CateringAPI
 dotnet restore
 dotnet run
 ```
 
-The backend will run at `http://localhost:5000`
+The backend will run at `http://localhost:5015`
+The health check endpoint is available at `http://localhost:5015/api/health`
 
 *Note: The backend has not been scaffolded yet. Update this
 when the backend setup card is complete.*
