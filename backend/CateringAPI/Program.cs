@@ -20,8 +20,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactFrontend",
         policy =>
         {
-            // This is the Vite port React app runs on
-            policy.WithOrigins("http://localhost:5173") 
+            policy.SetIsOriginAllowed(origin =>
+                {
+                    if (string.IsNullOrEmpty(origin)) return false;
+                    var uri = new Uri(origin);
+                    return uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+                })
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -37,9 +41,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowReactFrontend");
+
+app.UseHttpsRedirection();
 
 // Map the controllers so the app knows where to route API requests
 app.MapControllers();

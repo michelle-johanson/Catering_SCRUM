@@ -6,6 +6,7 @@ public class User
 {
     public int Id { get; set; }
 
+    // Unique username for login/identification
     [Required]
     public string Username { get; set; } = string.Empty;
 

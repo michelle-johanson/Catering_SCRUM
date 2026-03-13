@@ -122,18 +122,21 @@ The frontend will run at `http://localhost:5173`
 ```bash
 cd backend/CateringAPI
 dotnet restore
-dotnet run
+dotnet run --launch-profile http
 ```
 
-The backend will run at `http://localhost:5015`
-The health check endpoint is available at `http://localhost:5015/api/health`
+The backend will run at `http://localhost:5015`.  
+The frontend dev server proxies `/api` to this URL, so both must be running for Register/Login to work.  
+Health check: `http://localhost:5015/api/health`
 
-*Note: The backend has not been scaffolded yet. Update this
-when the backend setup card is complete.*
+If you see "Failed to fetch" or "Cannot connect to the backend server", make sure the backend is running (step 3) and that you restarted the frontend dev server after changing `vite.config.ts`.
 
 ### 4. Environment Variables
 
-*To be documented once the backend is set up.*
+| Variable | Description |
+|----------|-------------|
+| `VITE_PROXY_TARGET` | Backend URL for the Vite dev proxy (default: `http://localhost:5015`). Use `https://localhost:7219` if you run the backend with the `https` profile. |
+| `VITE_API_URL` | Leave unset to use the proxy (relative `/api`). Set to a full URL to call the API directly (e.g. for production). |
 
 ---
 
