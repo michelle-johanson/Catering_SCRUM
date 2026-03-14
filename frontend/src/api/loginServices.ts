@@ -8,12 +8,10 @@ interface LoginResponse {
   username: string;
   email: string;
   role: string;
-  token?: string; // JWT token if your backend uses it
+  token?: string;
 }
 
-// Use HTTP for localhost development (HTTPS can cause certificate issues)
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:7219/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5015';
 
 /**
  * Authenticates a user with the provided credentials
@@ -25,14 +23,13 @@ export const loginUser = async (
 ): Promise<LoginResponse> => {
   try {
     console.log('Attempting login with:', { username: credentials.username });
-    console.log('API URL:', `${API_BASE_URL}/auth/login`);
+    console.log('API URL:', `${API_BASE_URL}/api/Auth/login`);
 
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/Auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
       body: JSON.stringify(credentials),
     });
 
@@ -47,7 +44,6 @@ export const loginUser = async (
 
     const data: LoginResponse = await response.json();
 
-    // Store token if provided
     if (data.token) {
       localStorage.setItem('authToken', data.token);
     }
