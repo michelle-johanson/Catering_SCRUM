@@ -7,9 +7,9 @@ using CateringAPI.Data; // Required to access CateringDbContext
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register the SQLite Database
+// Register the PostgreSQL Database
 builder.Services.AddDbContext<CateringDbContext>(options =>
-    options.UseSqlite("Data Source=catering.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add support for Controllers
 builder.Services.AddControllers();
