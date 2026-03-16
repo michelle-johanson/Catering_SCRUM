@@ -14,7 +14,7 @@ function EventList() {
         const testConnection = async () => {
             try {
                 // 1. Fetch from the health endpoint instead of the events endpoint
-                const response = await fetch('https://localhost:7219/api/health');
+                const response = await fetch('/api/health');
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

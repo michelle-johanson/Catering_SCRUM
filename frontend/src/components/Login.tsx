@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/loginServices';
 import './Login.css';
 
@@ -21,6 +22,7 @@ function Login() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -68,8 +70,7 @@ function Login() {
     try {
       const response = await loginUser(formData);
       console.log('Login successful:', response);
-      // TODO: Navigate to dashboard or home page after successful login
-      // You can use useNavigate from react-router-dom here
+      navigate('/');
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Login failed. Please try again.';

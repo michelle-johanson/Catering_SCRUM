@@ -42,7 +42,7 @@ for future events — reducing waste and protecting margins.
 | Frontend | React 19 + TypeScript (via Vite) |
 | Frontend Routing | React Router DOM |
 | Backend | ASP.NET Core Web API (C#) |
-| Database | SQLite with Entity Framework Core |
+| Database | PostgreSQL with Entity Framework Core |
 | Code Style | ESLint + Prettier |
 
 ---
@@ -118,25 +118,42 @@ npm run dev
 
 The frontend will run at `http://localhost:5173`
 
-### 3. Run the Backend
+### 3. Set Up the Database
+
+You need **PostgreSQL** installed and running locally.
+
+1. Create the database (you can use pgAdmin or the `psql` CLI):
+   ```sql
+   CREATE DATABASE catering;
+   ```
+
+2. Update the connection string in `backend/CateringAPI/appsettings.json` with your PostgreSQL credentials:
+   ```json
+   "DefaultConnection": "Host=localhost;Port=5432;Database=catering;Username=postgres;Password=YOUR_PASSWORD"
+   ```
+
+3. Apply migrations to create the tables:
+   ```bash
+   cd backend/CateringAPI
+   dotnet ef database update
+   ```
+
+### 4. Run the Backend
 ```bash
 cd backend/CateringAPI
-dotnet restore
 dotnet run --launch-profile http
 ```
 
-The backend will run at `http://localhost:5015`.  
-The frontend dev server proxies `/api` to this URL, so both must be running for Register/Login to work.  
+The backend will run at `http://localhost:5015`.
+The frontend dev server proxies all `/api` requests to this URL, so both must be running for Register/Login to work.
 Health check: `http://localhost:5015/api/health`
 
-If you see "Failed to fetch" or "Cannot connect to the backend server", make sure the backend is running (step 3) and that you restarted the frontend dev server after changing `vite.config.ts`.
-
-### 4. Environment Variables
+### 5. Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_PROXY_TARGET` | Backend URL for the Vite dev proxy (default: `http://localhost:5015`). Use `https://localhost:7219` if you run the backend with the `https` profile. |
-| `VITE_API_URL` | Leave unset to use the proxy (relative `/api`). Set to a full URL to call the API directly (e.g. for production). |
+| `VITE_PROXY_TARGET` | Overrides the backend URL for the Vite dev proxy (default: `http://localhost:5015`). Only needed if your backend runs on a different port. |
+
 
 ---
 
