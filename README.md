@@ -1,222 +1,301 @@
 # Catering Management System
 
-## Project Overview
+A full-stack catering platform that helps catering business owners reduce food waste and increase profit margins. The system collects event, menu, and guest data, then uses historical waste logs to generate smarter food quantity recommendations over time.
 
-A full-stack catering management platform designed to help catering 
-business owners reduce food waste, optimize food purchasing, and 
-increase profit margins. The system collects data across events — 
-menus, guest counts, and post-event food logs — and uses that 
-historical data to generate smarter purchasing recommendations over 
-time.
-
-### The Problem
-
-Catering businesses lose significant profit to over-ordering food. 
-Existing software focuses on scheduling and CRM but does not connect 
-food waste data to actionable purchasing decisions. This platform 
-fills that gap.
-
-### The Solution
-
-Catering managers use the system to plan events, build menus, and 
-record guest counts before an event. After the event, they log 
-leftover food. Over time, the system analyzes trends across different 
-event types and client histories to recommend how much food to order 
-for future events — reducing waste and protecting margins.
-
----
-
-## Users
-
-| Role | Description |
-|---|---|
-| **Admin** | The catering business owner. Full access to all features. Primary user for now. |
-| **Employee** | Staff members. Role is defined but not yet built out. |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + TypeScript (via Vite) |
-| Frontend Routing | React Router DOM |
-| Backend | ASP.NET Core Web API (C#) |
-| Database | PostgreSQL with Entity Framework Core |
-| Code Style | ESLint + Prettier |
-
----
-
-## Product Scope
-
-### Must Have
-- Event management (create, view, edit events with guest count and budget)
-- Menu management (build menus with categories and items)
-- Post-event food waste logging
-- Food quantity recommendations based on historical data
-- Admin authentication (login, registration)
-
-### Should Have
-- Profit analysis per event
-- Waste analytics dashboard
-- Responsive design
-
-### Could Have
-- Image uploads for events
-- Waste threshold alerts
-- Employee role and access
-
-### Won't Have (this project)
-- Full accounting systems
-- Event marketing tools
-- Hardware integrations
-- Client-side Portal
-
----
-
-## Sprint Plan
-
-### Sprint 1 — Foundation
-**Goal:** Establish a working foundation for the catering platform, 
-including a deployed application with a functioning authentication 
-system that allows users to securely register and log in.
-
-### Sprint 2 — Management System
-**Placeholder Goal:** Build the core management features including events, menus, 
-guest counts, and post-event food waste logging.
-
-*To be planned at the start of Sprint 2.*
-
-### Sprint 3 — Recommendations Engine
-**Placeholder Goal:** Implement an algorithm that analyzes historical event data 
-and recommends food quantities for future events based on event type, 
-guest count, and past waste trends.
-
-This is the most ambitious sprint and the core differentiator of the 
-product. The scope of the recommendation engine will be adjusted based 
-on time available — at minimum it will use weighted historical averages, 
-and if time allows, a more sophisticated model can be explored.
-
-*To be planned at the start of Sprint 3.*
+**Tech Stack:** React 19 + TypeScript (Vite) · ASP.NET Core (C#) · PostgreSQL + Entity Framework Core
 
 ---
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js
+- .NET 10 SDK
+- PostgreSQL (running locally)
+
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/michelle-johanson/Catering_SCRUM.git
 cd Catering_SCRUM
 ```
 
-### 2. Run the Frontend
+### 2. Set Up the Database
+
+Create the database:
+
+```sql
+CREATE DATABASE catering;
+```
+
+Copy the example settings file and fill in your local PostgreSQL credentials:
+
+```bash
+cp backend/CateringAPI/appsettings.Development.example.json backend/CateringAPI/appsettings.Development.json
+```
+
+Open `appsettings.Development.json` and update the connection string:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=catering;Username=postgres;Password=YOUR_PASSWORD"
+  }
+}
+```
+
+> `appsettings.Development.json` is gitignored — never commit it. It overrides `appsettings.json` automatically when running locally.
+
+Run migrations:
+
+```bash
+cd backend/CateringAPI
+dotnet ef database update
+```
+
+### 3. Run the Backend
+
+```bash
+cd backend/CateringAPI
+dotnet run --launch-profile http
+```
+
+Backend runs at `http://localhost:5015`.  
+Health check: `http://localhost:5015/api/health`
+
+### 4. Run the Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The frontend will run at `http://localhost:5173`
+Frontend runs at `http://localhost:5173`. All `/api` requests are proxied to the backend automatically.
 
-### 3. Set Up the Database
+### 5. Environment Variables (Optional)
 
-You need **PostgreSQL** installed and running locally.
+| Variable            | Description                    | Default                 |
+| ------------------- | ------------------------------ | ----------------------- |
+| `VITE_PROXY_TARGET` | Backend URL for the Vite proxy | `http://localhost:5015` |
 
-1. Create the database (you can use pgAdmin or the `psql` CLI):
-   ```sql
-   CREATE DATABASE catering;
-   ```
+Create a `.env` file in `frontend/` if your backend runs on a different port:
 
-2. Update the connection string in `backend/CateringAPI/appsettings.json` with your PostgreSQL credentials:
-   ```json
-   "DefaultConnection": "Host=localhost;Port=5432;Database=catering;Username=postgres;Password=YOUR_PASSWORD"
-   ```
-
-3. Apply migrations to create the tables:
-   ```bash
-   cd backend/CateringAPI
-   dotnet ef database update
-   ```
-
-### 4. Run the Backend
-```bash
-cd backend/CateringAPI
-dotnet run --launch-profile http
 ```
-
-The backend will run at `http://localhost:5015`.
-The frontend dev server proxies all `/api` requests to this URL, so both must be running for Register/Login to work.
-Health check: `http://localhost:5015/api/health`
-
-### 5. Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `VITE_PROXY_TARGET` | Overrides the backend URL for the Vite dev proxy (default: `http://localhost:5015`). Only needed if your backend runs on a different port. |
-
+VITE_PROXY_TARGET=http://localhost:5015
+```
 
 ---
 
 ## Branching Strategy
 
-This project uses a structured branching strategy to keep everyone's 
-work organized and avoid conflicts. Please follow these rules for 
-every card you work on.
-
-### Branch Structure
 ```
-main          ← production only, managed by the Product Owner
-└── dev       ← shared integration branch, all PRs merge here
-    ├── feature/backend-setup
-    ├── feature/frontend-setup
-    └── feature/your-feature-name
+main          ← production only, merged by Product Owner at sprint end
+└── dev       ← shared integration branch, all PRs target here
+    └── feature/your-card-name
 ```
 
-### Rules
+**Rules:**
 
-- All work happens on a `feature/` branch, **never commit directly to `main` or `dev`**
-- Every feature branch is reviewed by at least one teammate before merging
-- The Product Owner reviews `dev` and merges to `main` at the end of each sprint
+- Never commit directly to `main` or `dev`
+- Branch off `dev`, open PRs back to `dev`
+- Do not merge your own PR — get a teammate to review it first
 
-### Starting a New Card
-
-When you pick up a Trello card, do the following:
 ```bash
-# Make sure you have the latest version of dev
+# Start a new card
 git checkout dev
 git pull origin dev
+git checkout -b feature/your-card-name
 
-# Create your feature branch
-# Name it after your Trello card, e.g. feature/user-login
-git checkout -b feature/your-feature-name
+# Push and open a PR targeting dev
+git push origin feature/your-card-name
 ```
 
-Commit regularly with clear messages. A good commit message describes what changed and why:
+If `dev` updates while you're working:
 
-### Opening a Pull Request
-
-When your card is done:
 ```bash
-# Push your branch to GitHub
-git push origin feature/your-feature-name
-```
-
-Then go to the repo on GitHub. You will see a prompt to open a Pull 
-Request. Make sure:
-
-- The base branch is set to `dev` (not `main`)
-- You write a short description of what you did
-- You request at least one teammate to review it
-
-Do not merge your own PR. Wait for a teammate to approve it.
-
-### Keeping Your Branch Up to Date
-
-If `dev` has been updated while you are working, pull the latest 
-changes into your branch to avoid conflicts:
-```bash
-git checkout dev
-git pull origin dev
-git checkout feature/your-feature-name
+git checkout dev && git pull origin dev
+git checkout feature/your-card-name
 git merge dev
 ```
+
+---
+
+## Sprint Plan
+
+### Sprint 1 — Foundation
+
+**Goal:** Establish a working foundation with a deployed application and a functioning authentication system that allows users to securely register and log in.
+
+### Sprint 2 — Management System
+
+**Goal:** Build the core management features including events, menus, guest counts, and post-event food waste logging.
+
+_Planned at the start of Sprint 2._
+
+### Sprint 3 — Recommendations Engine
+
+**Goal:** Implement an algorithm that analyzes historical event data and recommends food quantities for future events based on event type, guest count, and past waste trends. At minimum, weighted historical averages; a more sophisticated model if time allows.
+
+_Planned at the start of Sprint 3._
+
+---
+
+## Product Scope
+
+### Must Have
+
+- Admin authentication (register, login)
+- Event management (create, view, edit — with guest count and budget)
+- Menu management (build menus with categories and items)
+- Post-event food waste logging
+- Food quantity recommendations based on historical data
+
+### Should Have
+
+- Profit analysis per event
+- Waste analytics dashboard
+- Responsive design
+
+### Could Have
+
+- Image uploads for events
+- Waste threshold alerts
+- Employee role and access controls
+
+### Won't Have (This Project)
+
+- Full accounting systems
+- Event marketing tools
+- Hardware integrations
+- Client-side portal
+
+---
+
+## Users
+
+| Role         | Description                                                             |
+| ------------ | ----------------------------------------------------------------------- |
+| **Admin**    | The catering business owner. Full access to all features. Primary user. |
+| **Employee** | Staff members. Role is defined but not yet implemented.                 |
+
+---
+
+## EARS Requirements
+
+| Type              | Template                                                        |
+| ----------------- | --------------------------------------------------------------- |
+| Ubiquitous        | The \<system\> shall \<action\>.                                |
+| Event-driven      | When \<trigger\>, the \<system\> shall \<action\>.              |
+| State-driven      | While \<state\>, the \<system\> shall \<action\>.               |
+| Optional feature  | Where \<feature is included\>, the \<system\> shall \<action\>. |
+| Unwanted behavior | If \<condition\>, then the \<system\> shall \<action\>.         |
+
+---
+
+### Authentication
+
+**REQ-AUTH-01**
+The system shall store all user passwords as a BCrypt hash and never persist plaintext passwords.
+
+**REQ-AUTH-02**
+When a user submits a registration form, the system shall validate that the username, email, and password fields are all non-empty before creating an account.
+
+**REQ-AUTH-03**
+When a user attempts to register with an email or username that already exists, the system shall return a 409 Conflict response with a descriptive error message.
+
+**REQ-AUTH-04**
+When a user submits valid login credentials, the system shall return the user's ID, username, email, and role.
+
+**REQ-AUTH-05**
+If a user submits an unrecognized username or an incorrect password during login, the system shall return a 401 Unauthorized response.
+
+**REQ-AUTH-06**
+The system shall assign all newly registered users the role of "Employee" by default.
+
+---
+
+### Event Management
+
+**REQ-EVT-01**
+The system shall allow an authenticated admin to create an event with a name, date, guest count, and budget.
+
+**REQ-EVT-02**
+The system shall associate every event with the user ID of the admin who created it.
+
+**REQ-EVT-03**
+When a request is made to retrieve a specific event by ID, the system shall return a 404 Not Found response if no matching event exists.
+
+**REQ-EVT-04**
+When an admin updates an event, the system shall persist changes to name, date, guest count, and budget.
+
+**REQ-EVT-05**
+When an event is deleted, the system shall cascade delete all menus and menu items associated with that event.
+
+**REQ-EVT-06**
+The system shall allow retrieval of all events as a list.
+
+---
+
+### Menu Management
+
+**REQ-MENU-01**
+The system shall allow an authenticated admin to create a menu and associate it with a specific event.
+
+**REQ-MENU-02**
+When a request is made to retrieve a menu by ID, the system shall return a 404 Not Found response if no matching menu exists.
+
+**REQ-MENU-03**
+When a menu is deleted, the system shall cascade delete all menu items associated with that menu.
+
+**REQ-MENU-04**
+The system shall allow retrieval of all menus as a list.
+
+---
+
+### Menu Items
+
+**REQ-ITEM-01**
+The system shall allow an authenticated admin to add a menu item with a name, category, and quantity ordered, and associate it with a specific menu.
+
+**REQ-ITEM-02**
+The system shall default the quantity wasted for a new menu item to zero.
+
+**REQ-ITEM-03**
+When an admin logs post-event waste, the system shall allow updating the quantity wasted for any existing menu item.
+
+**REQ-ITEM-04**
+When a request is made to retrieve a menu item by ID, the system shall return a 404 Not Found response if no matching item exists.
+
+**REQ-ITEM-05**
+The system shall allow retrieval of all menu items as a list.
+
+---
+
+### Food Waste Logging
+
+**REQ-WASTE-01**
+The system shall allow an admin to record leftover food quantities for any menu item after an event concludes.
+
+**REQ-WASTE-02**
+The system shall persist quantity-wasted data at the menu item level, linked to the menu and event it belongs to.
+
+**REQ-WASTE-03**
+The system shall retain historical waste data across all past events to support future recommendation calculations.
+
+---
+
+### Recommendations Engine
+
+**REQ-REC-01**
+Where the recommendations feature is enabled, the system shall analyze historical waste data across past events of the same type before generating a quantity recommendation.
+
+**REQ-REC-02**
+When an admin creates a new event, the system shall provide a recommended food quantity for each menu item based on guest count and historical waste trends for similar events.
+
+**REQ-REC-03**
+If fewer than three historical events of a matching type exist, the system shall fall back to a weighted average across all available past events.
+
+**REQ-REC-04**
+The system shall expose recommendations via an API endpoint that returns item name, recommended quantity, and confidence level.
