@@ -23,9 +23,8 @@ function Register() {
     setError(null);
     setIsSubmitting(true);
 
-    const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:5015';
     try {
-      const response = await fetch(`${apiBase}/api/Auth/register`, {
+      const response = await fetch('/api/Auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

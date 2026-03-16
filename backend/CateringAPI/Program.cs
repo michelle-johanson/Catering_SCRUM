@@ -43,7 +43,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowReactFrontend");
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Map the controllers so the app knows where to route API requests
 app.MapControllers();

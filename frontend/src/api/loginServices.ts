@@ -11,8 +11,6 @@ interface LoginResponse {
   token?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5015';
-
 /**
  * Authenticates a user with the provided credentials
  * @param credentials - Username and password
@@ -23,9 +21,9 @@ export const loginUser = async (
 ): Promise<LoginResponse> => {
   try {
     console.log('Attempting login with:', { username: credentials.username });
-    console.log('API URL:', `${API_BASE_URL}/api/Auth/login`);
+    console.log('API URL:', '/api/Auth/login');
 
-    const response = await fetch(`${API_BASE_URL}/api/Auth/login`, {
+    const response = await fetch('/api/Auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
