@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\spenc\\source\\repos\\Catering_SCRUM\\backend\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{57B6D077-C529-1A2A-A55C-F0B00CCC5D84}|CateringAPI\\CateringAPI.csproj|c:\\users\\spenc\\source\\repos\\catering_scrum\\backend\\cateringapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{57B6D077-C529-1A2A-A55C-F0B00CCC5D84}|CateringAPI\\CateringAPI.csproj|solutionrelative:cateringapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{57B6D077-C529-1A2A-A55C-F0B00CCC5D84}|CateringAPI\\CateringAPI.csproj|c:\\users\\spenc\\source\\repos\\catering_scrum\\backend\\cateringapi\\cateringapi.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{57B6D077-C529-1A2A-A55C-F0B00CCC5D84}|CateringAPI\\CateringAPI.csproj|solutionrelative:cateringapi\\cateringapi.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CateringAPI.http",
+              "DocumentMoniker": "C:\\Users\\spenc\\source\\repos\\Catering_SCRUM\\backend\\CateringAPI\\CateringAPI.http",
+              "RelativeDocumentMoniker": "CateringAPI\\CateringAPI.http",
+              "ToolTip": "C:\\Users\\spenc\\source\\repos\\Catering_SCRUM\\backend\\CateringAPI\\CateringAPI.http",
+              "RelativeToolTip": "CateringAPI\\CateringAPI.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-03-11T22:30:46.485Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\spenc\\source\\repos\\Catering_SCRUM\\backend\\CateringAPI\\Program.cs",
+              "RelativeDocumentMoniker": "CateringAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\spenc\\source\\repos\\Catering_SCRUM\\backend\\CateringAPI\\Program.cs",
+              "RelativeToolTip": "CateringAPI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-11T16:31:50.776Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

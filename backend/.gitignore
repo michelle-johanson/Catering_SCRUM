@@ -11,5 +11,10 @@ obj/
 .env
 appsettings.Development.json
 
+# SQLite database (local data)
+*.db
+*.db-shm
+*.db-wal
+
 # OS
 .DS_Store

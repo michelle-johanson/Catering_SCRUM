@@ -1,6 +1,166 @@
 @CateringAPI_HostAddress = http://localhost:5015
 
-GET {{CateringAPI_HostAddress}}/weatherforecast/
+# ==========================================
+# 1. USERS
+# ==========================================
+
+### POST a new User (Foundation)
+# Expect: 201 Created status and the new User JSON object (should have "id": 1).
+POST {{CateringAPI_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "username": "admin_tyler",
+  "email": "tyler@catering.com",
+  "passwordHash": "fake_hashed_password_for_now",
+  "role": "Admin"
+}
+
+### GET all Users
+# Expect: 200 OK and an array containing the User you just created.
+GET {{CateringAPI_HostAddress}}/api/users
 Accept: application/json
 
-###
+### GET User by ID
+# Expect: 200 OK and the specific User JSON object.
+GET {{CateringAPI_HostAddress}}/api/users/1
+Accept: application/json
+
+### PUT to update User (Change role to Employee)
+# Expect: 204 No Content (meaning the update succeeded, but it doesn't need to send data back).
+PUT {{CateringAPI_HostAddress}}/api/users/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "username": "admin_tyler",
+  "email": "tyler@catering.com",
+  "passwordHash": "fake_hashed_password_for_now",
+  "role": "Employee"
+}
+
+
+# ==========================================
+# 2. EVENTS
+# ==========================================
+
+### POST a new Event
+# Expect: 201 Created status. (Notice we pass createdByUserId: 1 here)
+POST {{CateringAPI_HostAddress}}/api/events
+Content-Type: application/json
+
+{
+  "name": "Tech Conference Lunch",
+  "date": "2026-04-15T12:00:00",
+  "guestCount": 150,
+  "budget": 2500.00,
+  "createdByUserId": 1
+}
+
+### GET all Events
+# Expect: 200 OK and an array containing the Event.
+GET {{CateringAPI_HostAddress}}/api/events
+Accept: application/json
+
+### PUT to update Event (Change guest count to 200)
+# Expect: 204 No Content.
+PUT {{CateringAPI_HostAddress}}/api/events/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Tech Conference Lunch",
+  "date": "2026-04-15T12:00:00",
+  "guestCount": 200,
+  "budget": 2500.00,
+  "createdByUserId": 1
+}
+
+
+# ==========================================
+# 3. MENUS
+# ==========================================
+
+### POST a new Menu
+# Expect: 201 Created status. (Notice we pass eventId: 1 here)
+POST {{CateringAPI_HostAddress}}/api/menus
+Content-Type: application/json
+
+{
+  "name": "Vegan Buffet Option",
+  "eventId": 1
+}
+
+### GET all Menus
+# Expect: 200 OK and an array containing the Menu.
+GET {{CateringAPI_HostAddress}}/api/menus
+Accept: application/json
+
+### PUT to update Menu (Change name)
+# Expect: 204 No Content.
+PUT {{CateringAPI_HostAddress}}/api/menus/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Standard Buffet Option",
+  "eventId": 1
+}
+
+
+# ==========================================
+# 4. MENU ITEMS
+# ==========================================
+
+### POST a new Menu Item
+# Expect: 201 Created status. (Notice we pass menuId: 1 here)
+POST {{CateringAPI_HostAddress}}/api/menuitems
+Content-Type: application/json
+
+{
+  "name": "Tofu Skewers",
+  "category": "Appetizer",
+  "quantityOrdered": 50,
+  "quantityWasted": 0,
+  "menuId": 1
+}
+
+### GET all Menu Items
+# Expect: 200 OK and an array containing the Menu Item.
+GET {{CateringAPI_HostAddress}}/api/menuitems
+Accept: application/json
+
+### PUT to update Menu Item (Log 5 wasted skewers after the event)
+# Expect: 204 No Content.
+PUT {{CateringAPI_HostAddress}}/api/menuitems/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Tofu Skewers",
+  "category": "Appetizer",
+  "quantityOrdered": 50,
+  "quantityWasted": 5,
+  "menuId": 1
+}
+
+
+# ==========================================
+# 5. DELETIONS (Run in reverse order!)
+# ==========================================
+
+### DELETE the Menu Item
+# Expect: 204 No Content.
+DELETE {{CateringAPI_HostAddress}}/api/menuitems/1
+
+### DELETE the Menu
+# Expect: 204 No Content.
+DELETE {{CateringAPI_HostAddress}}/api/menus/1
+
+### DELETE the Event
+# Expect: 204 No Content.
+DELETE {{CateringAPI_HostAddress}}/api/events/1
+
+### DELETE the User
+# Expect: 204 No Content.
+DELETE {{CateringAPI_HostAddress}}/api/users/1
