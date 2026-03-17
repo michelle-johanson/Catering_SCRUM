@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
@@ -18,7 +18,7 @@ function Register() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
@@ -26,9 +26,7 @@ function Register() {
     try {
       const response = await fetch('/api/Auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: form.username,
           email: form.email,
@@ -57,61 +55,66 @@ function Register() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: 400, margin: '0 auto' }}>
-      <h2>Register</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}
-      >
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1>Create an account</h1>
+          <p>Join the Catering Service team</p>
         </div>
 
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="auth-error">{error}</div>
+          )}
 
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            minLength={6}
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-
-        {error && (
-          <div style={{ color: 'red' }}>
-            {error}
+          <div>
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              placeholder="Choose a username"
+              required
+            />
           </div>
-        )}
 
-        <button type="submit" disabled={isSubmitting} style={{ padding: '10px', marginTop: '8px' }}>
-          {isSubmitting ? 'Registering…' : 'Register'}
-        </button>
-      </form>
+          <div>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="At least 6 characters"
+              required
+              minLength={6}
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating account…' : 'Register'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>Already have an account? <a href="/login">Sign in</a></p>
+        </div>
+      </div>
     </div>
   );
 }

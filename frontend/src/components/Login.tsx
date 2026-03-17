@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/loginServices';
-import './Login.css';
 
 interface LoginFormData {
   username: string;
@@ -45,26 +44,17 @@ function Login() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error for this field when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: undefined,
-      }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrors({});
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     try {
@@ -74,37 +64,35 @@ function Login() {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Login failed. Please try again.';
-      setErrors({
-        submit: errorMessage,
-      });
+      setErrors({ submit: errorMessage });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Login</h1>
-          <p>Welcome back to Catering Service</p>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h1>Welcome back</h1>
+          <p>Sign in to Catering Service</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           {errors.submit && (
-            <div className="error-message error-banner">{errors.submit}</div>
+            <div className="auth-error">{errors.submit}</div>
           )}
 
-          <div className="form-group">
+          <div>
             <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
               name="username"
+              className={errors.username ? 'input-error' : ''}
               value={formData.username}
               onChange={handleInputChange}
               placeholder="Enter your username"
-              className={errors.username ? 'input-error' : ''}
               disabled={isLoading}
             />
             {errors.username && (
@@ -112,17 +100,17 @@ function Login() {
             )}
           </div>
 
-          <div className="form-group">
+          <div>
             <label htmlFor="password">Password</label>
             <div className="password-input-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
+                className={errors.password ? 'input-error' : ''}
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Enter your password"
-                className={errors.password ? 'input-error' : ''}
                 disabled={isLoading}
               />
               <button
@@ -139,18 +127,14 @@ function Login() {
             )}
           </div>
 
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+            {isLoading ? 'Signing in…' : 'Login'}
           </button>
         </form>
 
-        <div className="login-footer">
-          <p>
-            Don't have an account? <a href="/register">Sign up here</a>
-          </p>
-          <a href="#forgot-password" className="forgot-password">
-            Forgot password?
-          </a>
+        <div className="auth-footer">
+          <p>Don't have an account? <a href="/register">Sign up here</a></p>
+          <a href="#forgot-password">Forgot password?</a>
         </div>
       </div>
     </div>

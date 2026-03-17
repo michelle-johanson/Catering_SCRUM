@@ -6,22 +6,37 @@ import Login from './components/Login';
 
 function App() {
   return (
-    <main style={{ padding: '20px' }}>
-      <header style={{ marginBottom: '20px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <h1 style={{ marginRight: 'auto' }}>My Catering App Test</h1>
-        <nav style={{ display: 'flex', gap: '10px' }}>
-          <Link to="/">Events</Link>
-          <Link to="/register">Register</Link>
-          <Link to="/login">Login</Link>
-        </nav>
-      </header>
+    <>
+      <nav className="navbar navbar-expand-lg navbar-light px-3 fixed-top w-100">
+        <Link className="navbar-brand" to="/">Catering Management</Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+          aria-controls="navMenu"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+        <div className="collapse navbar-collapse" id="navMenu">
+          <div className="navbar-nav ms-auto">
+            <Link className="nav-link" to="/">Events</Link>
+            <Link className="nav-link" to="/register">Register</Link>
+            <Link className="nav-link" to="/login">Login</Link>
+          </div>
+        </div>
+      </nav>
 
-      <Routes>
-        <Route path="/" element={<EventList />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </main>
+      <main className="container page-wrapper" style={{ paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }}>
+        <Routes>
+          <Route path="/" element={<EventList />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </main>
+    </>
   );
 }
 

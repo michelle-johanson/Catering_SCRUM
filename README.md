@@ -197,105 +197,105 @@ _Planned at the start of Sprint 3._
 ### Authentication
 
 **REQ-AUTH-01**
-The system shall store all user passwords as a BCrypt hash and never persist plaintext passwords.
+✅ The system shall store all user passwords as a BCrypt hash and never persist plaintext passwords.
 
 **REQ-AUTH-02**
-When a user submits a registration form, the system shall validate that the username, email, and password fields are all non-empty before creating an account.
+✅ When a user submits a registration form, the system shall validate that the username, email, and password fields are all non-empty before creating an account.
 
 **REQ-AUTH-03**
-When a user attempts to register with an email or username that already exists, the system shall return a 409 Conflict response with a descriptive error message.
+✅ When a user attempts to register with an email or username that already exists, the system shall return a 409 Conflict response with a descriptive error message.
 
 **REQ-AUTH-04**
-When a user submits valid login credentials, the system shall return the user's ID, username, email, and role.
+✅ When a user submits valid login credentials, the system shall return the user's ID, username, email, and role.
 
 **REQ-AUTH-05**
-If a user submits an unrecognized username or an incorrect password during login, the system shall return a 401 Unauthorized response.
+✅ If a user submits an unrecognized username or an incorrect password during login, the system shall return a 401 Unauthorized response.
 
 **REQ-AUTH-06**
-The system shall assign all newly registered users the role of "Employee" by default.
+✅ The system shall assign all newly registered users the role of "Employee" by default.
 
 ---
 
 ### Event Management
 
 **REQ-EVT-01**
-The system shall allow an authenticated admin to create an event with a name, date, guest count, and budget.
+❌ The system shall allow an authenticated admin to create an event with a name, date, guest count, and budget.
 
 **REQ-EVT-02**
-The system shall associate every event with the user ID of the admin who created it.
+❌ The system shall associate every event with the user ID of the admin who created it.
 
 **REQ-EVT-03**
-When a request is made to retrieve a specific event by ID, the system shall return a 404 Not Found response if no matching event exists.
+❌ When a request is made to retrieve a specific event by ID, the system shall return a 404 Not Found response if no matching event exists.
 
 **REQ-EVT-04**
-When an admin updates an event, the system shall persist changes to name, date, guest count, and budget.
+❌ When an admin updates an event, the system shall persist changes to name, date, guest count, and budget.
 
 **REQ-EVT-05**
-When an event is deleted, the system shall cascade delete all menus and menu items associated with that event.
+❌ When an event is deleted, the system shall cascade delete all menus and menu items associated with that event.
 
 **REQ-EVT-06**
-The system shall allow retrieval of all events as a list.
+✅ The system shall allow retrieval of all events as a list.
 
 ---
 
 ### Menu Management
 
 **REQ-MENU-01**
-The system shall allow an authenticated admin to create a menu and associate it with a specific event.
+❌ The system shall allow an authenticated admin to create a menu and associate it with a specific event.
 
 **REQ-MENU-02**
-When a request is made to retrieve a menu by ID, the system shall return a 404 Not Found response if no matching menu exists.
+❌ When a request is made to retrieve a menu by ID, the system shall return a 404 Not Found response if no matching menu exists.
 
 **REQ-MENU-03**
-When a menu is deleted, the system shall cascade delete all menu items associated with that menu.
+❌ When a menu is deleted, the system shall cascade delete all menu items associated with that menu.
 
 **REQ-MENU-04**
-The system shall allow retrieval of all menus as a list.
+❌ The system shall allow retrieval of all menus as a list.
 
 ---
 
 ### Menu Items
 
 **REQ-ITEM-01**
-The system shall allow an authenticated admin to add a menu item with a name, category, and quantity ordered, and associate it with a specific menu.
+❌ The system shall allow an authenticated admin to add a menu item with a name, category, and quantity ordered, and associate it with a specific menu.
 
 **REQ-ITEM-02**
-The system shall default the quantity wasted for a new menu item to zero.
+❌ The system shall default the quantity wasted for a new menu item to zero.
 
 **REQ-ITEM-03**
-When an admin logs post-event waste, the system shall allow updating the quantity wasted for any existing menu item.
+❌ When an admin logs post-event waste, the system shall allow updating the quantity wasted for any existing menu item.
 
 **REQ-ITEM-04**
-When a request is made to retrieve a menu item by ID, the system shall return a 404 Not Found response if no matching item exists.
+❌ When a request is made to retrieve a menu item by ID, the system shall return a 404 Not Found response if no matching item exists.
 
 **REQ-ITEM-05**
-The system shall allow retrieval of all menu items as a list.
+❌ The system shall allow retrieval of all menu items as a list.
 
 ---
 
 ### Food Waste Logging
 
 **REQ-WASTE-01**
-The system shall allow an admin to record leftover food quantities for any menu item after an event concludes.
+❌ The system shall allow an admin to record leftover food quantities for any menu item after an event concludes.
 
 **REQ-WASTE-02**
-The system shall persist quantity-wasted data at the menu item level, linked to the menu and event it belongs to.
+❌ The system shall persist quantity-wasted data at the menu item level, linked to the menu and event it belongs to.
 
 **REQ-WASTE-03**
-The system shall retain historical waste data across all past events to support future recommendation calculations.
+❌ The system shall retain historical waste data across all past events to support future recommendation calculations.
 
 ---
 
 ### Recommendations Engine
 
 **REQ-REC-01**
-Where the recommendations feature is enabled, the system shall analyze historical waste data across past events of the same type before generating a quantity recommendation.
+❌ Where the recommendations feature is enabled, the system shall analyze historical waste data across past events of the same type before generating a quantity recommendation.
 
 **REQ-REC-02**
-When an admin creates a new event, the system shall provide a recommended food quantity for each menu item based on guest count and historical waste trends for similar events.
+❌ When an admin creates a new event, the system shall provide a recommended food quantity for each menu item based on guest count and historical waste trends for similar events.
 
 **REQ-REC-03**
-If fewer than three historical events of a matching type exist, the system shall fall back to a weighted average across all available past events.
+❌ If fewer than three historical events of a matching type exist, the system shall fall back to a weighted average across all available past events.
 
 **REQ-REC-04**
-The system shall expose recommendations via an API endpoint that returns item name, recommended quantity, and confidence level.
+❌ The system shall expose recommendations via an API endpoint that returns item name, recommended quantity, and confidence level.
