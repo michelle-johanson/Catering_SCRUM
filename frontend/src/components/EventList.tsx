@@ -1,6 +1,7 @@
 // This is a placeholder page. It shows a health check to show if the frontend and backend are connected.
 import { useState, useEffect } from "react";
 import type { Event } from "../types/Event";
+import { withAuthHeaders } from "../api/loginServices";
 // We temporarily don't need fetchEvents while we test the health check
 // import { fetchEvents } from "../api/eventService";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +29,9 @@ function EventList() {
         const testConnection = async () => {
             try {
                 // 1. Fetch from the health endpoint instead of the events endpoint
-                const response = await fetch('/api/health');
+                const response = await fetch('/api/health', {
+                    headers: withAuthHeaders(),
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

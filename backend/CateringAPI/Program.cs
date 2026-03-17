@@ -4,9 +4,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using CateringAPI.Data; // Required to access CateringDbContext
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,26 +13,6 @@ builder.Services.AddDbContext<CateringDbContext>(options =>
 
 // Add support for Controllers
 builder.Services.AddControllers();
-
-// Configure JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!))
-        };
-    });
-
-// Add Authorization policies
-builder.Services.AddAuthorization();
 
 // 1. Configure CORS 
 builder.Services.AddCors(options =>
@@ -70,9 +47,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 // Map the controllers so the app knows where to route API requests
 app.MapControllers();
