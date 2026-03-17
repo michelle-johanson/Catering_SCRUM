@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../api/loginServices';
+import { loginUser, storeAuthSession } from '../api/loginServices';
 
 interface LoginFormData {
   username: string;
@@ -59,6 +59,10 @@ function Login() {
     setIsLoading(true);
     try {
       const response = await loginUser(formData);
+      storeAuthSession({
+        token: response.token,
+        username: response.username ?? formData.username,
+      });
       console.log('Login successful:', response);
       navigate('/');
     } catch (err) {
