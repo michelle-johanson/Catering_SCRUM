@@ -11,6 +11,14 @@ interface LoginResponse {
   token?: string;
 }
 
+interface AuthSession {
+  token?: string;
+  username?: string;
+}
+
+const AUTH_TOKEN_KEY = 'authToken';
+const AUTH_USERNAME_KEY = 'authUsername';
+
 /**
  * Authenticates a user with the provided credentials
  * @param credentials - Username and password
@@ -41,11 +49,6 @@ export const loginUser = async (
     }
 
     const data: LoginResponse = await response.json();
-
-    if (data.token) {
-      localStorage.setItem('authToken', data.token);
-    }
-
     return data;
   } catch (error) {
     console.error('Login failed:', error);
@@ -53,11 +56,26 @@ export const loginUser = async (
   }
 };
 
+export const storeAuthSession = ({ token, username }: AuthSession): void => {
+  if (token) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+
+  if (username) {
+    localStorage.setItem(AUTH_USERNAME_KEY, username);
+  } else {
+    localStorage.removeItem(AUTH_USERNAME_KEY);
+  }
+};
+
 /**
  * Logs out the current user by removing stored credentials
  */
 export const logoutUser = (): void => {
-  localStorage.removeItem('authToken');
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(AUTH_USERNAME_KEY);
 };
 
 /**
@@ -65,7 +83,11 @@ export const logoutUser = (): void => {
  * @returns Token string or null if not authenticated
  */
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem('authToken');
+  return localStorage.getItem(AUTH_TOKEN_KEY);
+};
+
+export const getAuthUsername = (): string | null => {
+  return localStorage.getItem(AUTH_USERNAME_KEY);
 };
 
 /**
@@ -73,5 +95,20 @@ export const getAuthToken = (): string | null => {
  * @returns True if auth token exists
  */
 export const isAuthenticated = (): boolean => {
-  return !!getAuthToken();
+  return !!getAuthToken() || !!getAuthUsername();
+};
+
+export const withAuthHeaders = (
+  headers: Record<string, string> = {}
+): Record<string, string> => {
+  const token = getAuthToken();
+
+  if (!token) {
+    return headers;
+  }
+
+  return {
+    ...headers,
+    Authorization: `Bearer ${token}`,
+  };
 };
