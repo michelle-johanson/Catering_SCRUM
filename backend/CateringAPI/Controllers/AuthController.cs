@@ -2,6 +2,10 @@ using CateringAPI.Data;
 using CateringAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace CateringAPI.Controllers;
 
@@ -10,10 +14,12 @@ namespace CateringAPI.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly CateringDbContext _db;
+    private readonly IConfiguration _config;
 
-    public AuthController(CateringDbContext db)
+    public AuthController(CateringDbContext db, IConfiguration config)
     {
         _db = db;
+        _config = config;
     }
 
     [HttpPost("register")]
@@ -47,12 +53,12 @@ public class AuthController : ControllerBase
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
+        var token = GenerateJwtToken(user);
+
         return Created("/api/auth/register", new
         {
-            user.Id,
-            user.Username,
-            user.Email,
-            user.Role
+            token = token,
+            user = new { user.Id, user.Username, user.Email, user.Role }
         });
     }
 
@@ -72,13 +78,41 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Invalid username or password." });
         }
 
+        var token = GenerateJwtToken(user);
+
         return Ok(new
         {
-            user.Id,
-            user.Username,
-            user.Email,
-            user.Role
+            token = token,
+            user = new { user.Id, user.Username, user.Email, user.Role }
         });
+    }
+
+    private string GenerateJwtToken(User user)
+    {
+        var jwtSettings = _config.GetSection("JwtSettings");
+        var secretKey = jwtSettings["Secret"];
+        var issuer = jwtSettings["Issuer"];
+        var audience = jwtSettings["Audience"];
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(2),
+            signingCredentials: credentials);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
 
