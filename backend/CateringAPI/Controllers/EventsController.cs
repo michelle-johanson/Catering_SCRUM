@@ -3,6 +3,7 @@
 // backend/CateringAPI/Controllers/EventsController.cs
 
 using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Authorization;//
 using Microsoft.EntityFrameworkCore;
 using CateringAPI.Data;
 using CateringAPI.Models;
@@ -11,6 +12,7 @@ namespace CateringAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]//
     public class EventsController : ControllerBase
     {
         private readonly CateringDbContext _context;
