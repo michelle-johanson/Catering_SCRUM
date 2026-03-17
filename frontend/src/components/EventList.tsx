@@ -3,9 +3,22 @@ import { useState, useEffect } from "react";
 import type { Event } from "../types/Event";
 // We temporarily don't need fetchEvents while we test the health check
 // import { fetchEvents } from "../api/eventService";
+import { useNavigate } from "react-router-dom";
 
 function EventList() {
-    const [events] = useState<Event[]>([]);
+    const [events] = useState<Event[]>([
+        {
+            id: 1,
+            name: "Test Event",
+            date: new Date().toISOString(),
+            guestCount: 50,
+            budget: 1000,
+            createdByUserId: 0,
+            menus: []
+        }
+        ]);
+    const navigate = useNavigate();
+    
 
     // We are adding a new state just to display Tyler's health check message!
     const [healthStatus, setHealthStatus] = useState<string>("Checking connection to .NET...");
@@ -43,6 +56,13 @@ function EventList() {
         <div>
             <h2 className="section-title">Catering Events</h2>
 
+            <button 
+    className="btn btn-primary mb-3"
+    onClick={() => navigate("/events/new")}
+>
+    Create Event
+</button>
+
             <div className={`alert ${isHealthy === null ? 'alert-info' : isHealthy ? 'alert-success' : 'alert-danger'} mb-4`} role="alert">
                 <span className={`status-dot ${isHealthy === null ? '' : isHealthy ? 'status-dot--healthy' : 'status-dot--error'}`} />
                 <strong>API Status:</strong> {healthStatus}
@@ -56,6 +76,7 @@ function EventList() {
                             <th>Date</th>
                             <th>Guest Count</th>
                             <th>Budget</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,6 +96,14 @@ function EventList() {
                                     <td>{new Date(e.date).toLocaleDateString()}</td>
                                     <td>{e.guestCount}</td>
                                     <td>${e.budget.toFixed(2)}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={() => navigate(`/events/edit/${e.id}`)}
+                                        >
+                                            Edit
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         )}
