@@ -1,0 +1,157 @@
+/* =============================================================
+   VARIABLES
+   Design tokens: colors, typography, spacing, borders, shadows.
+   Bootstrap custom property overrides also live here.
+   Import this file first — everything else depends on it.
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  /* -----------------------------------------------------------
+     Colors — Brand
+     Warm olive green, grounded and food-adjacent
+     ----------------------------------------------------------- */
+  --color-primary: #4a5e3a;
+  --color-primary-hover: #3a4b2c;
+  --color-primary-light: #eef2ea;
+  --color-primary-subtle: #f5f7f2;
+
+  /* -----------------------------------------------------------
+     Colors — Neutrals
+     Warm stone, not cold gray
+     ----------------------------------------------------------- */
+  --color-bg: #faf9f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f5f3ef;
+  --color-border: #e4e0d8;
+  --color-border-subtle: #ede9e2;
+
+  /* -----------------------------------------------------------
+     Colors — Text
+     ----------------------------------------------------------- */
+  --color-text-primary: #1c1c1a;
+  --color-text-secondary: #5c5a55;
+  --color-text-muted: #9c9a94;
+  --color-text-inverse: #ffffff;
+
+  /* -----------------------------------------------------------
+     Colors — Semantic
+     ----------------------------------------------------------- */
+  --color-success: #3d6b47;
+  --color-success-bg: #edf4ef;
+  --color-warning: #7a5c1e;
+  --color-warning-bg: #fdf6e3;
+  --color-danger: #8b3a3a;
+  --color-danger-bg: #fdf0f0;
+  --color-info: #2e5c7a;
+  --color-info-bg: #eef4f9;
+
+  /* -----------------------------------------------------------
+     Colors — Accent
+     Warm terracotta for highlights
+     ----------------------------------------------------------- */
+  --color-accent: #b5614a;
+  --color-accent-light: #f9ede9;
+
+  /* -----------------------------------------------------------
+     Typography
+     ----------------------------------------------------------- */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-md: 1.125rem; /* 18px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+  --text-2xl: 1.875rem; /* 30px */
+  --text-3xl: 2.25rem; /* 36px */
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.6;
+  --leading-loose: 1.8;
+
+  /* -----------------------------------------------------------
+     Spacing
+     Extends Bootstrap's scale with named tokens
+     ----------------------------------------------------------- */
+  --space-1: 0.25rem; /* 4px  */
+  --space-2: 0.5rem; /* 8px  */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+
+  /* -----------------------------------------------------------
+     Borders & Radius
+     ----------------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --border-width: 1px;
+  --border: var(--border-width) solid var(--color-border);
+
+  /* -----------------------------------------------------------
+     Shadows
+     ----------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(28, 28, 26, 0.04);
+  --shadow-sm:
+    0 1px 4px rgba(28, 28, 26, 0.06), 0 1px 2px rgba(28, 28, 26, 0.04);
+  --shadow-md:
+    0 4px 12px rgba(28, 28, 26, 0.08), 0 1px 3px rgba(28, 28, 26, 0.04);
+  --shadow-lg:
+    0 8px 24px rgba(28, 28, 26, 0.1), 0 2px 6px rgba(28, 28, 26, 0.04);
+
+  /* -----------------------------------------------------------
+     Transitions
+     ----------------------------------------------------------- */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 350ms ease;
+
+  /* -----------------------------------------------------------
+     Layout
+     ----------------------------------------------------------- */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --navbar-height: 60px;
+
+  /* -----------------------------------------------------------
+     Bootstrap overrides
+     Maps Bootstrap's own custom properties to our tokens so
+     all Bootstrap components automatically use our palette.
+     ----------------------------------------------------------- */
+  --bs-font-sans-serif: var(--font-body);
+  --bs-body-font-family: var(--font-body);
+  --bs-body-font-size: var(--text-base);
+  --bs-body-color: var(--color-text-primary);
+  --bs-body-bg: var(--color-bg);
+  --bs-border-color: var(--color-border);
+  --bs-border-radius: var(--radius-md);
+  --bs-border-radius-sm: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-lg);
+  --bs-link-color: var(--color-primary);
+  --bs-link-hover-color: var(--color-primary-hover);
+  --bs-primary: var(--color-primary);
+  --bs-primary-rgb: 74, 94, 58;
+  --bs-success-rgb: 61, 107, 71;
+  --bs-danger-rgb: 139, 58, 58;
+  --bs-warning-rgb: 122, 92, 30;
+}

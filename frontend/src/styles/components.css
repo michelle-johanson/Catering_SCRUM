@@ -1,0 +1,117 @@
+/* =============================================================
+   COMPONENTS
+   Reusable UI pieces: cards, tables, alerts, badges.
+   Depends on: variables.css
+   ============================================================= */
+
+/* -----------------------------------------------------------
+   Cards
+   ----------------------------------------------------------- */
+.card {
+  background: var(--color-surface);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.card-raised {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--border);
+}
+
+/* -----------------------------------------------------------
+   Tables
+   ----------------------------------------------------------- */
+.table {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.table thead th {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: var(--space-3);
+}
+
+.table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-primary-subtle);
+}
+
+.table td {
+  vertical-align: middle;
+  border-color: var(--color-border-subtle);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* -----------------------------------------------------------
+   Alerts — remap Bootstrap alerts to semantic tokens
+   ----------------------------------------------------------- */
+.alert {
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  border-width: var(--border-width);
+  border-style: solid;
+}
+
+.alert-success {
+  background-color: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.alert-danger {
+  background-color: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.alert-warning {
+  background-color: var(--color-warning-bg);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.alert-info {
+  background-color: var(--color-info-bg);
+  border-color: var(--color-info);
+  color: var(--color-info);
+}
+
+/* -----------------------------------------------------------
+   Badges
+   ----------------------------------------------------------- */
+.badge {
+  font-family: var(--font-body);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-2);
+}
+
+.badge-primary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.badge-accent {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+}

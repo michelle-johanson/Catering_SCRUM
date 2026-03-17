@@ -1,0 +1,175 @@
+/* =============================================================
+   LOGIN & REGISTER
+   Shared styles for the auth pages (Login.tsx, Register.tsx).
+   Replaces frontend/src/components/Login.css.
+   Depends on: variables.css, forms.css
+   ============================================================= */
+
+/* -----------------------------------------------------------
+   Page wrapper — centers the card on screen
+   ----------------------------------------------------------- */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - var(--navbar-height));
+  background-color: var(--color-bg);
+  padding: var(--space-6);
+  padding-top: calc(var(--navbar-height) + var(--space-6));
+}
+
+/* -----------------------------------------------------------
+   Card
+   ----------------------------------------------------------- */
+.auth-card {
+  background: var(--color-surface);
+  border: var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-10) var(--space-8);
+  animation: auth-slide-up 0.25s ease-out;
+}
+
+@keyframes auth-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -----------------------------------------------------------
+   Header
+   ----------------------------------------------------------- */
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.auth-header h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.auth-header p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* -----------------------------------------------------------
+   Form
+   ----------------------------------------------------------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* -----------------------------------------------------------
+   Password toggle
+   ----------------------------------------------------------- */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 44px;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: var(--space-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: var(--space-1);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  transition:
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+  /* Override base button styles */
+  border-radius: 0;
+  width: auto;
+}
+
+.toggle-password-btn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.toggle-password-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* -----------------------------------------------------------
+   Error banner
+   ----------------------------------------------------------- */
+.auth-error {
+  background-color: var(--color-danger-bg);
+  border-left: 3px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+/* -----------------------------------------------------------
+   Submit button — full width inside auth form
+   ----------------------------------------------------------- */
+.auth-form .btn-primary {
+  width: 100%;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-base);
+  margin-top: var(--space-2);
+}
+
+/* -----------------------------------------------------------
+   Footer links
+   ----------------------------------------------------------- */
+.auth-footer {
+  text-align: center;
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: var(--border);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.auth-footer p {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.auth-footer a {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+.auth-footer a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* -----------------------------------------------------------
+   Responsive
+   ----------------------------------------------------------- */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-lg);
+  }
+}
