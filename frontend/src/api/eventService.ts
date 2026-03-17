@@ -1,7 +1,7 @@
 import type { Event } from '../types/Event';
 import { withAuthHeaders } from './loginServices';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 export const fetchEvents = async (): Promise<Event[]> => {
   try {
