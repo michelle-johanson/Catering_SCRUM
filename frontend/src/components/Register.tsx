@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { storeAuthSession, withAuthHeaders } from '../api/loginServices';
+
+interface RegisterResponse {
+  token?: string;
+  username?: string;
+}
 
 function Register() {
   const navigate = useNavigate();
@@ -24,9 +30,10 @@ function Register() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/Auth/register', {
+      const apiBase = import.meta.env.VITE_API_URL ?? '/api';
+      const response = await fetch(`${apiBase}/Auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           username: form.username,
           email: form.email,
@@ -42,7 +49,12 @@ function Register() {
         return;
       }
 
-      navigate('/login');
+      const data = (await response.json().catch(() => null)) as RegisterResponse | null;
+      storeAuthSession({
+        token: data?.token,
+        username: data?.username ?? form.username,
+      });
+      navigate(data?.token ? '/' : '/login');
     } catch (err) {
       const raw = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       const message =

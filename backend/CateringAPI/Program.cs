@@ -24,7 +24,8 @@ builder.Services.AddCors(options =>
                 {
                     if (string.IsNullOrEmpty(origin)) return false;
                     var uri = new Uri(origin);
-                    return uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+                    return uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                        || uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase);
                 })
                   .AllowAnyHeader()
                   .AllowAnyMethod();
