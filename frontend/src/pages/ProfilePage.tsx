@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAuthUserId, getAuthUsername, withAuthHeaders, storeAuthSession, getAuthToken } from '../api/loginService';
+import { getAuthUserId, withAuthHeaders, storeAuthSession, getAuthToken } from '../api/loginService';
 import type { User } from '../types/User';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
