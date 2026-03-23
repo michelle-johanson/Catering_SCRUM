@@ -60,6 +60,39 @@ export const createEvent = async (
   }
 };
 
+export const fetchEventById = async (id: string | number): Promise<Event> => {
+  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+    headers: withAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json() as Promise<Event>;
+};
+
+export interface UpdateEventRequest {
+  id: number;
+  name: string;
+  date: string;
+  guestCount: number;
+  budget: number;
+  createdByUserId: number;
+}
+
+export const updateEvent = async (
+  id: string | number,
+  eventData: UpdateEventRequest
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(eventData),
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
 export const deleteEvent = async (id: string | number): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}/events/${id}`, {

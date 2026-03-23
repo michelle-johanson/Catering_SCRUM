@@ -20,16 +20,27 @@
 //      - "Add Task" button → inline form (title, description, status, due date)
 //      - Status values: Pending | InProgress | Done  (use .status-* classes from tasks.css)
 //
-// Imports needed:
+import { useNavigate } from 'react-router-dom';
+
+// TODO — remaining imports needed when implementing:
 // import { useState, useEffect } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 // import { fetchTasks, createTask, deleteTask } from '../api/taskService';
 // import { fetchMenusByEvent } from '../api/menuService';
 // import type { Event } from '../types/Event';
 // import type { Task } from '../types/Task';
 
 function EventDetailPage() {
-  return <div>EventDetailPage — TODO</div>;
+  const navigate = useNavigate();
+
+  return (
+    <div>
+      <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+        ← Back
+      </button>
+      <div>EventDetailPage — TODO</div>
+    </div>
+  );
 }
 
 export default EventDetailPage;

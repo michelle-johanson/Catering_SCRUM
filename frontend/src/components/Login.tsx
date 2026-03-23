@@ -65,7 +65,7 @@ function Login() {
         userId: response.id,
       });
       console.log('Login successful:', response);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Login failed. Please try again.';

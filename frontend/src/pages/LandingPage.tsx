@@ -1,17 +1,29 @@
-// TODO: LandingPage — public route shown to unauthenticated users
-//
-// Requirements:
-// - If isAuthenticated(), redirect to /dashboard immediately
-// - Hero section: app name "Catering Management", tagline
-// - Two CTA buttons: "Log In" → /login, "Register" → /register
-// - Uses existing design tokens (globals.css)
-//
-// Imports needed:
-// import { Navigate } from 'react-router-dom';
-// import { isAuthenticated } from '../api/loginService';
+import { Navigate, Link } from 'react-router-dom';
+import { isAuthenticated } from '../api/loginService';
 
 function LandingPage() {
-  return <div>LandingPage — TODO</div>;
+  if (isAuthenticated()) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card" style={{ textAlign: 'center', maxWidth: '28rem' }}>
+        <div className="auth-header">
+          <h1>Catering Management</h1>
+          <p>Streamline your catering operations — events, menus, and tasks in one place.</p>
+        </div>
+        <div className="d-flex flex-column gap-3 mt-4">
+          <Link to="/login" className="btn btn-primary">
+            Log In
+          </Link>
+          <Link to="/register" className="btn btn-secondary">
+            Register
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default LandingPage;
