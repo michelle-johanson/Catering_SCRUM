@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { storeAuthSession, withAuthHeaders } from '../api/loginServices';
 
 interface RegisterResponse {
+  id?: number;
   token?: string;
   username?: string;
 }
@@ -53,6 +54,7 @@ function Register() {
       storeAuthSession({
         token: data?.token,
         username: data?.username ?? form.username,
+        userId: data?.id,
       });
       navigate(data?.token ? '/' : '/login');
     } catch (err) {

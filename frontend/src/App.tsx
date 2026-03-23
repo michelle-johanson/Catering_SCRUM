@@ -4,6 +4,7 @@ import EventList from './components/EventList';
 import Register from './components/Register';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import CreateEventPage from './components/CreateEventPage';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
           </Route>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/events/new" element={<div>New Event Page</div>} />
+          <Route path="/events/new" element={<CreateEventPage />} />
           <Route path="/events/edit/:id" element={<div>Edit Event Page</div>} />
         </Routes>
       </main>

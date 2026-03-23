@@ -62,6 +62,7 @@ function Login() {
       storeAuthSession({
         token: response.token,
         username: response.username ?? formData.username,
+        userId: response.id,
       });
       console.log('Login successful:', response);
       navigate('/');
