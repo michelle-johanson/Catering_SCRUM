@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { Event } from "../types/Event";
 import { deleteEvent, fetchEvents } from "../api/eventService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function EventList() {
     const [events, setEvents] = useState<Event[]>([]);
@@ -94,14 +94,14 @@ function EventList() {
                         ) : (
                             events.map((e) => (
                                 <tr key={e.id}>
-                                    <td>{e.name}</td>
+                                    <td><Link to={`/events/${e.id}`}>{e.name}</Link></td>
                                     <td>{new Date(e.date).toLocaleDateString()}</td>
                                     <td>{e.guestCount}</td>
                                     <td>${e.budget.toFixed(2)}</td>
                                     <td>
                                         <button
                                             className="btn btn-sm btn-secondary"
-                                            onClick={() => navigate(`/events/edit/${e.id}`)}
+                                            onClick={() => navigate(`/events/${e.id}/edit`)}
                                         >
                                             Edit
                                         </button>

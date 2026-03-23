@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { storeAuthSession, withAuthHeaders } from '../api/loginServices';
+import { storeAuthSession, withAuthHeaders } from '../api/loginService';
 
 interface RegisterResponse {
   id?: number;

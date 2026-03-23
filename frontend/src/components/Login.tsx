@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, storeAuthSession } from '../api/loginServices';
+import { loginUser, storeAuthSession } from '../api/loginService';
 
 interface LoginFormData {
   username: string;
@@ -65,7 +65,7 @@ function Login() {
         userId: response.id,
       });
       console.log('Login successful:', response);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Login failed. Please try again.';
