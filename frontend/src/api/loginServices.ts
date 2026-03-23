@@ -16,10 +16,12 @@ interface LoginResponse {
 interface AuthSession {
   token?: string;
   username?: string;
+  userId?: number;
 }
 
 const AUTH_TOKEN_KEY = 'authToken';
 const AUTH_USERNAME_KEY = 'authUsername';
+const AUTH_USER_ID_KEY = 'authUserId';
 
 /**
  * Authenticates a user with the provided credentials
@@ -58,7 +60,7 @@ export const loginUser = async (
   }
 };
 
-export const storeAuthSession = ({ token, username }: AuthSession): void => {
+export const storeAuthSession = ({ token, username, userId }: AuthSession): void => {
   if (token) {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   } else {
@@ -70,6 +72,12 @@ export const storeAuthSession = ({ token, username }: AuthSession): void => {
   } else {
     localStorage.removeItem(AUTH_USERNAME_KEY);
   }
+
+  if (typeof userId === 'number') {
+    localStorage.setItem(AUTH_USER_ID_KEY, String(userId));
+  } else {
+    localStorage.removeItem(AUTH_USER_ID_KEY);
+  }
 };
 
 /**
@@ -78,6 +86,7 @@ export const storeAuthSession = ({ token, username }: AuthSession): void => {
 export const logoutUser = (): void => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USERNAME_KEY);
+  localStorage.removeItem(AUTH_USER_ID_KEY);
 };
 
 /**
@@ -90,6 +99,17 @@ export const getAuthToken = (): string | null => {
 
 export const getAuthUsername = (): string | null => {
   return localStorage.getItem(AUTH_USERNAME_KEY);
+};
+
+export const getAuthUserId = (): number | null => {
+  const value = localStorage.getItem(AUTH_USER_ID_KEY);
+
+  if (value === null) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
 };
 
 /**

@@ -7,9 +7,17 @@ using CateringAPI.Data; // Required to access CateringDbContext
 
 var builder = WebApplication.CreateBuilder(args);
 
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(defaultConnection) ||
+    defaultConnection.Contains("YOUR_PASSWORD_HERE", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException(
+        "DefaultConnection is not configured. Set a real PostgreSQL connection string in appsettings.Development.json.");
+}
+
 // Register the PostgreSQL Database
 builder.Services.AddDbContext<CateringDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(defaultConnection));
 
 // Add support for Controllers
 builder.Services.AddControllers();

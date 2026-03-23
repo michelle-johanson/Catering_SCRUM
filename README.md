@@ -86,6 +86,24 @@ Create a `.env` file in `frontend/` if your backend runs on a different port:
 VITE_PROXY_TARGET=http://localhost:5015
 ```
 
+### Troubleshooting: `500` on Register/Login
+
+If `/api/auth/register` or `/api/auth/login` returns `500`, it is usually a database connection issue.
+
+Checklist:
+
+1. Ensure `backend/CateringAPI/appsettings.Development.json` exists (copy from `.example` if needed).
+2. Replace `YOUR_PASSWORD_HERE` with your real PostgreSQL password.
+3. Ensure PostgreSQL is running and the `catering` database exists.
+4. Run migrations:
+
+```bash
+cd backend/CateringAPI
+dotnet ef database update
+```
+
+On startup, the API now fails fast with a clear config message if `DefaultConnection` still contains `YOUR_PASSWORD_HERE`.
+
 ---
 
 ## Branching Strategy
