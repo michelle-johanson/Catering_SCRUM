@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Event } from "../types/Event";
-import { fetchEvents } from "../api/eventService";
+import { deleteEvent, fetchEvents } from "../api/eventService";
 import { useNavigate } from "react-router-dom";
 
 function EventList() {
@@ -29,6 +29,23 @@ function EventList() {
 
         void loadEvents();
     }, []);
+
+    const handleDeleteEvent = async (id: number, name: string) => {
+        const shouldDelete = window.confirm(`Delete event "${name}"? This action cannot be undone.`);
+
+        if (!shouldDelete) {
+            return;
+        }
+
+        try {
+            await deleteEvent(id);
+            setEvents((prev) => prev.filter((event) => event.id !== id));
+            setError(null);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Failed to delete event.";
+            setError(`Could not delete event. ${message}`);
+        }
+    };
 
     return (
         <div>
@@ -87,6 +104,12 @@ function EventList() {
                                             onClick={() => navigate(`/events/edit/${e.id}`)}
                                         >
                                             Edit
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-danger ms-2"
+                                            onClick={() => void handleDeleteEvent(e.id, e.name)}
+                                        >
+                                            Delete
                                         </button>
                                     </td>
                                 </tr>
