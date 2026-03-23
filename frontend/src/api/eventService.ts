@@ -1,5 +1,5 @@
 import type { Event } from '../types/Event';
-import { withAuthHeaders } from './loginServices';
+import { withAuthHeaders } from './loginService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 

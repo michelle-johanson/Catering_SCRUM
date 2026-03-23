@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createEvent } from '../api/eventService';
-import { getAuthUserId } from '../api/loginServices';
+import { getAuthUserId } from '../api/loginService';
 
 interface CreateEventFormData {
 	name: string;

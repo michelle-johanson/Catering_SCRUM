@@ -1,0 +1,22 @@
+/* =============================================================
+   TASKS
+   Styles for TasksPage and task-related UI in EventDetailPage.
+   All values use design tokens from globals.css.
+   ============================================================= */
+
+/* TODO: Implement once TasksPage is built.
+   Planned classes:
+
+   Status badges (inline with task rows):
+   .status-badge         — base pill badge
+   .status-pending       — warning color (--color-warning / --color-warning-bg)
+   .status-inprogress    — info color (--color-info / --color-info-bg)
+   .status-done          — success color (--color-success / --color-success-bg)
+
+   Task form (inline add/edit at top of table):
+   .task-form            — flex row, gap, aligned inputs
+   .task-form input      — inherits from forms.css
+
+   Task table row states:
+   .task-row-done        — muted text (--color-text-muted) + strikethrough title
+*/

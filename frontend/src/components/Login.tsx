@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, storeAuthSession } from '../api/loginServices';
+import { loginUser, storeAuthSession } from '../api/loginService';
 
 interface LoginFormData {
   username: string;

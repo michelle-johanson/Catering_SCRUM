@@ -1,0 +1,23 @@
+/* =============================================================
+   EVENTS
+   Styles for EventDetailPage header and section tabs.
+   EventsPage table inherits from components.css (no extra needed there).
+   All values use design tokens from globals.css.
+   ============================================================= */
+
+/* TODO: Implement once EventDetailPage is built.
+   Planned classes:
+
+   Event detail header block:
+   .event-detail-header        — flex row: title on left, action buttons on right
+   .event-detail-title         — --font-display, --text-2xl, --color-text-primary
+   .event-meta                 — flex row of meta chips (date, guests, budget)
+   .event-meta-chip            — pill: --color-surface-raised bg, --text-sm, --space-2 padding
+
+   Section tab headers (Overview / Menus / Tasks):
+   .detail-tabs                — flex row of tab buttons, border-bottom --color-border
+   .detail-tab                 — button, no border, --text-sm, --weight-medium, padding --space-3 --space-4
+                                 default color: --color-text-secondary
+   .detail-tab.active          — border-bottom 2px solid --color-primary, color --color-primary
+   .detail-tab-panel           — padding-top --space-6
+*/
