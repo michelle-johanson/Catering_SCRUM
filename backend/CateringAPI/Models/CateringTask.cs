@@ -16,8 +16,7 @@ public class CateringTask
 
     public DateTime? DueDate { get; set; }
 
-    [Required]
-    public int EventId { get; set; }
+    public int? EventId { get; set; }
 
     public Event? Event { get; set; }
 }

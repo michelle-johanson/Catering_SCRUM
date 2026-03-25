@@ -3,6 +3,7 @@ using System;
 using CateringAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CateringAPI.Migrations
 {
     [DbContext(typeof(CateringDbContext))]
-    partial class CateringDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260325011126_AddTodoItems")]
+    partial class AddTodoItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,38 +24,6 @@ namespace CateringAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CateringAPI.Models.CateringTask", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("EventId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.ToTable("Tasks");
-                });
 
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
                 {
@@ -71,21 +42,12 @@ namespace CateringAPI.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal?>("FoodWasteLbs")
-                        .HasColumnType("numeric");
-
                     b.Property<int>("GuestCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<decimal?>("TotalCost")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal?>("TotalSales")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -148,6 +110,38 @@ namespace CateringAPI.Migrations
                     b.ToTable("MenuItems");
                 });
 
+            modelBuilder.Entity("CateringAPI.Models.TodoItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TodoItems");
+                });
+
             modelBuilder.Entity("CateringAPI.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -175,15 +169,6 @@ namespace CateringAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("CateringAPI.Models.CateringTask", b =>
-                {
-                    b.HasOne("CateringAPI.Models.Event", "Event")
-                        .WithMany("Tasks")
-                        .HasForeignKey("EventId");
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
@@ -219,11 +204,20 @@ namespace CateringAPI.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("CateringAPI.Models.TodoItem", b =>
+                {
+                    b.HasOne("CateringAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
                 {
                     b.Navigation("Menus");
-
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("CateringAPI.Models.Menu", b =>
