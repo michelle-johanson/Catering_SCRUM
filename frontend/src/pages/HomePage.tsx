@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchEvents } from '../api/eventService';
+import { getAuthUsername } from '../api/loginService';
 import type { Event } from '../types/Event';
-import FoodWasteChart from '../components/dashboard/FoodWasteChart';
-import ProfitabilityChart from '../components/dashboard/ProfitabilityChart';
-import WasteProfitCorrelation from '../components/dashboard/WasteProfitCorrelation';
-import RevenuePerGuestChart from '../components/dashboard/RevenuePerGuestChart';
-import CostBreakdownChart from '../components/dashboard/CostBreakdownChart';
 import '../styles/dashboard.css';
 
 function HomePage() {
@@ -37,139 +33,188 @@ function HomePage() {
     return <div className="alert alert-danger">{error}</div>;
   }
 
-  // --- KPI calculations ---
   const now = new Date();
-  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-  const upcomingEvents = events.filter((e) => {
-    const d = new Date(e.date);
-    return d >= now && d <= in30Days;
-  });
-  const pastEvents = events.filter((e) => new Date(e.date) < now);
+  const username = getAuthUsername() ?? 'there';
 
-  const totalBudget = events.reduce((s, e) => s + e.budget, 0);
-  const totalRevenue = events.reduce((s, e) => s + (e.totalSales ?? 0), 0);
-  const totalCosts = events.reduce((s, e) => s + (e.totalCost ?? 0), 0);
-  const totalProfit = totalRevenue - totalCosts;
-  const totalWaste = events.reduce((s, e) => s + (e.foodWasteLbs ?? 0), 0);
+  // --- Upcoming events (future, sorted soonest first) ---
+  const upcomingEvents = [...events]
+    .filter((e) => new Date(e.date) >= now)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
+  // --- Past events needing financials ---
+  const needsFinancials = events.filter(
+    (e) =>
+      new Date(e.date) < now &&
+      (e.totalSales == null || e.totalCost == null || e.foodWasteLbs == null)
+  );
+
+  // --- OKR summary ---
   const eventsWithFinancials = events.filter(
     (e) => e.totalSales != null && e.totalCost != null
   );
+  const totalRevenue = eventsWithFinancials.reduce(
+    (s, e) => s + (e.totalSales ?? 0),
+    0
+  );
+  const totalCosts = eventsWithFinancials.reduce(
+    (s, e) => s + (e.totalCost ?? 0),
+    0
+  );
+  const totalProfit = totalRevenue - totalCosts;
   const avgMargin =
     eventsWithFinancials.length > 0 && totalRevenue > 0
       ? ((totalProfit / totalRevenue) * 100).toFixed(1)
       : null;
 
-  const avgWastePerEvent =
-    pastEvents.filter((e) => e.foodWasteLbs != null).length > 0
-      ? (
-          totalWaste / pastEvents.filter((e) => e.foodWasteLbs != null).length
-        ).toFixed(1)
-      : null;
+  const pastWithWaste = events.filter(
+    (e) => new Date(e.date) < now && e.foodWasteLbs != null
+  );
+  const totalWaste = pastWithWaste.reduce(
+    (s, e) => s + (e.foodWasteLbs ?? 0),
+    0
+  );
+  const avgWaste =
+    pastWithWaste.length > 0 ? (totalWaste / pastWithWaste.length).toFixed(1) : null;
 
-  const recentEvents = [...events]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  const daysUntilNext =
+    upcomingEvents.length > 0
+      ? Math.ceil(
+          (new Date(upcomingEvents[0].date).getTime() - now.getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      : null;
 
   return (
     <div>
       <div className="dashboard-header">
-        <h2 className="section-title">Dashboard</h2>
-        <div className="d-flex gap-2">
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate('/events/new')}
-          >
-            + New Event
-          </button>
-        </div>
+        <h2 className="section-title">Welcome back, {username}</h2>
       </div>
 
-      {/* --- Stat Cards --- */}
+      {/* --- OKR Snapshot --- */}
       <div className="stats-grid">
         <div className="metric-card">
-          <span className="metric-label">Total Events</span>
-          <span className="metric-value">{events.length}</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-label">Upcoming (30 days)</span>
-          <span className="metric-value">{upcomingEvents.length}</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-label">Total Budget</span>
-          <span className="metric-value">${totalBudget.toLocaleString()}</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-label">Total Revenue</span>
-          <span className="metric-value">${totalRevenue.toLocaleString()}</span>
-        </div>
-        <div className="metric-card">
-          <span className="metric-label">Net Profit</span>
-          <span
-            className={`metric-value ${totalProfit >= 0 ? 'text-success' : 'text-danger'}`}
-          >
-            ${totalProfit.toLocaleString()}
-          </span>
-        </div>
-        <div className="metric-card">
           <span className="metric-label">Avg Profit Margin</span>
-          <span className="metric-value">
+          <span
+            className={`metric-value ${avgMargin != null && Number(avgMargin) >= 0 ? 'text-success' : ''}`}
+          >
             {avgMargin != null ? `${avgMargin}%` : '--'}
           </span>
         </div>
         <div className="metric-card">
-          <span className="metric-label">Total Food Waste</span>
+          <span className="metric-label">Avg Food Waste</span>
           <span className="metric-value">
-            {totalWaste > 0 ? `${totalWaste} lbs` : '--'}
+            {avgWaste != null ? `${avgWaste} lbs` : '--'}
           </span>
         </div>
         <div className="metric-card">
-          <span className="metric-label">Avg Waste / Event</span>
+          <span className="metric-label">Upcoming Events</span>
+          <span className="metric-value">{upcomingEvents.length}</span>
+        </div>
+        <div className="metric-card">
+          <span className="metric-label">Next Event In</span>
           <span className="metric-value">
-            {avgWastePerEvent != null ? `${avgWastePerEvent} lbs` : '--'}
+            {daysUntilNext != null ? `${daysUntilNext} days` : '--'}
           </span>
         </div>
       </div>
 
-      {/* --- OKR Charts --- */}
-      <h3 className="section-subtitle">Key Results</h3>
-      <div className="charts-grid">
-        <FoodWasteChart events={events} />
-        <ProfitabilityChart events={events} />
+      {/* --- Quick Actions --- */}
+      <h3 className="section-subtitle">Quick Actions</h3>
+      <div className="actions-grid">
+        <button className="btn btn-primary" onClick={() => navigate('/events/new')}>
+          + Create Event
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate('/events')}
+        >
+          View All Events
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate('/analytics')}
+        >
+          View Analytics
+        </button>
       </div>
 
-      <div className="charts-grid">
-        <WasteProfitCorrelation events={events} />
-        <CostBreakdownChart events={events} />
+      {/* --- Needs Attention --- */}
+      {needsFinancials.length > 0 && (
+        <>
+          <h3 className="section-subtitle">Needs Attention</h3>
+          <div className="card p-3 mb-4">
+            <p className="text-muted mb-2" style={{ fontSize: 'var(--text-sm)' }}>
+              These past events are missing post-event financials. Update them to
+              improve your analytics.
+            </p>
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Missing</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {needsFinancials.slice(0, 5).map((e) => {
+                    const missing: string[] = [];
+                    if (e.totalSales == null) missing.push('Sales');
+                    if (e.totalCost == null) missing.push('Cost');
+                    if (e.foodWasteLbs == null) missing.push('Waste');
+                    return (
+                      <tr key={e.id}>
+                        <td>{e.name}</td>
+                        <td>{new Date(e.date).toLocaleDateString()}</td>
+                        <td>{missing.join(', ')}</td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() => navigate(`/events/${e.id}/edit`)}
+                          >
+                            Update
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* --- Upcoming Tasks (placeholder — wire up once task API is ready) --- */}
+      <h3 className="section-subtitle">Upcoming Tasks</h3>
+      <div className="card p-3 mb-4">
+        <p className="text-muted mb-0">
+          Task tracking coming soon. Once tasks are connected, your upcoming
+          and overdue tasks will appear here.
+        </p>
       </div>
 
-      <div className="charts-grid">
-        <RevenuePerGuestChart events={events} />
-      </div>
-
-      {/* --- Recent Events Table --- */}
-      <h3 className="section-subtitle">Recent Events</h3>
+      {/* --- Upcoming Events --- */}
+      <h3 className="section-subtitle">Upcoming Events</h3>
       <div className="card p-3">
-        {recentEvents.length === 0 ? (
+        {upcomingEvents.length === 0 ? (
           <p className="text-muted mb-0">
-            No events yet. Create your first event to get started.
+            No upcoming events. Create one to get started.
           </p>
         ) : (
           <div className="table-responsive">
             <table className="table table-hover mb-0">
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>Event</th>
                   <th>Date</th>
                   <th>Guests</th>
                   <th>Budget</th>
-                  <th>Sales</th>
-                  <th>Cost</th>
-                  <th>Waste</th>
                 </tr>
               </thead>
               <tbody>
-                {recentEvents.map((e) => (
+                {upcomingEvents.slice(0, 8).map((e) => (
                   <tr
                     key={e.id}
                     style={{ cursor: 'pointer' }}
@@ -179,19 +224,6 @@ function HomePage() {
                     <td>{new Date(e.date).toLocaleDateString()}</td>
                     <td>{e.guestCount}</td>
                     <td>${e.budget.toLocaleString()}</td>
-                    <td>
-                      {e.totalSales != null
-                        ? `$${e.totalSales.toLocaleString()}`
-                        : '--'}
-                    </td>
-                    <td>
-                      {e.totalCost != null
-                        ? `$${e.totalCost.toLocaleString()}`
-                        : '--'}
-                    </td>
-                    <td>
-                      {e.foodWasteLbs != null ? `${e.foodWasteLbs} lbs` : '--'}
-                    </td>
                   </tr>
                 ))}
               </tbody>

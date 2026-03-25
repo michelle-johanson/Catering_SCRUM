@@ -68,6 +68,14 @@
   margin-top: var(--space-4);
 }
 
+/* --- Quick actions --- */
+.actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
 /* --- Chart grid --- */
 .charts-grid {
   display: grid;
