@@ -8,6 +8,9 @@ interface EventFormData {
   date: string;
   guestCount: string;
   budget: string;
+  foodWasteLbs: string;
+  totalCost: string;
+  totalSales: string;
 }
 
 interface FormErrors {
@@ -15,6 +18,9 @@ interface FormErrors {
   date?: string;
   guestCount?: string;
   budget?: string;
+  foodWasteLbs?: string;
+  totalCost?: string;
+  totalSales?: string;
   submit?: string;
 }
 
@@ -28,6 +34,9 @@ function EventFormPage() {
     date: '',
     guestCount: '',
     budget: '',
+    foodWasteLbs: '',
+    totalCost: '',
+    totalSales: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +55,10 @@ function EventFormPage() {
           date: dateValue,
           guestCount: String(event.guestCount),
           budget: String(event.budget),
+          foodWasteLbs:
+            event.foodWasteLbs != null ? String(event.foodWasteLbs) : '',
+          totalCost: event.totalCost != null ? String(event.totalCost) : '',
+          totalSales: event.totalSales != null ? String(event.totalSales) : '',
         });
       } catch {
         setErrors({ submit: 'Failed to load event. Please try again.' });
@@ -79,6 +92,26 @@ function EventFormPage() {
       nextErrors.budget = 'Budget must be a valid non-negative number';
     }
 
+    if (
+      formData.foodWasteLbs &&
+      (isNaN(Number(formData.foodWasteLbs)) ||
+        Number(formData.foodWasteLbs) < 0)
+    ) {
+      nextErrors.foodWasteLbs = 'Food waste must be a non-negative number';
+    }
+    if (
+      formData.totalCost &&
+      (isNaN(Number(formData.totalCost)) || Number(formData.totalCost) < 0)
+    ) {
+      nextErrors.totalCost = 'Total cost must be a non-negative number';
+    }
+    if (
+      formData.totalSales &&
+      (isNaN(Number(formData.totalSales)) || Number(formData.totalSales) < 0)
+    ) {
+      nextErrors.totalSales = 'Total sales must be a non-negative number';
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -99,7 +132,9 @@ function EventFormPage() {
 
     const userId = getAuthUserId();
     if (userId === null) {
-      setErrors({ submit: 'Your session is missing a user ID. Please sign in again.' });
+      setErrors({
+        submit: 'Your session is missing a user ID. Please sign in again.',
+      });
       return;
     }
 
@@ -108,6 +143,16 @@ function EventFormPage() {
     try {
       const isoDate = new Date(formData.date).toISOString();
 
+      const optionalFields = {
+        foodWasteLbs: formData.foodWasteLbs
+          ? Number(formData.foodWasteLbs)
+          : undefined,
+        totalCost: formData.totalCost ? Number(formData.totalCost) : undefined,
+        totalSales: formData.totalSales
+          ? Number(formData.totalSales)
+          : undefined,
+      };
+
       if (isEditMode) {
         await updateEvent(id, {
           id: Number(id),
@@ -115,6 +160,7 @@ function EventFormPage() {
           date: isoDate,
           guestCount: Number(formData.guestCount),
           budget: Number(formData.budget),
+          ...optionalFields,
           createdByUserId: userId,
         });
         navigate(`/events/${id}`);
@@ -124,12 +170,14 @@ function EventFormPage() {
           date: isoDate,
           guestCount: Number(formData.guestCount),
           budget: Number(formData.budget),
+          ...optionalFields,
           createdByUserId: userId,
         });
         navigate('/events');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save event.';
+      const message =
+        err instanceof Error ? err.message : 'Failed to save event.';
       setErrors({ submit: message });
     } finally {
       setIsSubmitting(false);
@@ -150,7 +198,9 @@ function EventFormPage() {
 
   return (
     <div>
-      <h2 className="section-title">{isEditMode ? 'Edit Event' : 'Create Event'}</h2>
+      <h2 className="section-title">
+        {isEditMode ? 'Edit Event' : 'Create Event'}
+      </h2>
 
       <div className="card p-4" style={{ maxWidth: '40rem' }}>
         <form onSubmit={handleSubmit}>
@@ -201,10 +251,12 @@ function EventFormPage() {
               onChange={handleInputChange}
               disabled={isSubmitting}
             />
-            {errors.guestCount && <span className="field-error">{errors.guestCount}</span>}
+            {errors.guestCount && (
+              <span className="field-error">{errors.guestCount}</span>
+            )}
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <label htmlFor="budget">Budget</label>
             <input
               id="budget"
@@ -217,14 +269,86 @@ function EventFormPage() {
               onChange={handleInputChange}
               disabled={isSubmitting}
             />
-            {errors.budget && <span className="field-error">{errors.budget}</span>}
+            {errors.budget && (
+              <span className="field-error">{errors.budget}</span>
+            )}
+          </div>
+
+          <hr className="my-3" />
+          <p className="text-muted mb-3" style={{ fontSize: 'var(--text-sm)' }}>
+            Post-event financials (optional — fill in after the event)
+          </p>
+
+          <div className="mb-3">
+            <label htmlFor="totalSales">Total Sales ($)</label>
+            <input
+              id="totalSales"
+              name="totalSales"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="e.g. 5000.00"
+              className={errors.totalSales ? 'input-error' : ''}
+              value={formData.totalSales}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            />
+            {errors.totalSales && (
+              <span className="field-error">{errors.totalSales}</span>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="totalCost">Total Cost ($)</label>
+            <input
+              id="totalCost"
+              name="totalCost"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="e.g. 3200.00"
+              className={errors.totalCost ? 'input-error' : ''}
+              value={formData.totalCost}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            />
+            {errors.totalCost && (
+              <span className="field-error">{errors.totalCost}</span>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="foodWasteLbs">Food Waste (lbs)</label>
+            <input
+              id="foodWasteLbs"
+              name="foodWasteLbs"
+              type="number"
+              min={0}
+              step="0.1"
+              placeholder="e.g. 12.5"
+              className={errors.foodWasteLbs ? 'input-error' : ''}
+              value={formData.foodWasteLbs}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            />
+            {errors.foodWasteLbs && (
+              <span className="field-error">{errors.foodWasteLbs}</span>
+            )}
           </div>
 
           <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
               {isSubmitting
-                ? isEditMode ? 'Saving...' : 'Creating...'
-                : isEditMode ? 'Save Changes' : 'Create Event'}
+                ? isEditMode
+                  ? 'Saving...'
+                  : 'Creating...'
+                : isEditMode
+                  ? 'Save Changes'
+                  : 'Create Event'}
             </button>
             <button
               type="button"

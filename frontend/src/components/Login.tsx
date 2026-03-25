@@ -84,9 +84,7 @@ function Login() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          {errors.submit && (
-            <div className="auth-error">{errors.submit}</div>
-          )}
+          {errors.submit && <div className="auth-error">{errors.submit}</div>}
 
           <div>
             <label htmlFor="username">Username</label>
@@ -132,13 +130,19 @@ function Login() {
             )}
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isLoading}
+          >
             {isLoading ? 'Signing in…' : 'Login'}
           </button>
         </form>
 
         <div className="auth-footer">
-          <p>Don't have an account? <a href="/register">Sign up here</a></p>
+          <p>
+            Don't have an account? <a href="/register">Sign up here</a>
+          </p>
           <a href="#forgot-password">Forgot password?</a>
         </div>
       </div>
