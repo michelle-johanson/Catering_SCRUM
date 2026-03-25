@@ -1,0 +1,25 @@
+/* =============================================================
+   ANALYTICS
+   Styles for AnalyticsPage stat cards and CSS-based bar charts.
+   All values use design tokens from globals.css.
+   ============================================================= */
+
+/* TODO: Implement once AnalyticsPage is built.
+   Planned classes:
+
+   Stat card grid:
+   .stats-grid           — CSS Grid, auto-fill columns min 200px, gap --space-6
+                           Responsive: collapses to 2-col on tablet, 1-col on mobile
+
+   CSS bar chart:
+   .bar-chart            — vertical stack of labeled bars
+   .bar-chart-row        — flex row: label | bar track | value
+   .bar-track            — full-width background track (--color-border, radius --radius-sm)
+   .bar-fill             — colored fill; width set via inline style="width: X%"
+                           Primary color: --color-primary; transitions with --transition-base
+
+   Metric typography:
+   .metric-value         — large number display (--text-2xl, --weight-semibold, --color-primary)
+   .metric-label         — small descriptor (--text-sm, --color-text-muted)
+   .metric-card          — card wrapper with padding --space-6, shadow --shadow-sm
+*/

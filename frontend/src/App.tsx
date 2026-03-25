@@ -1,63 +1,64 @@
 import './App.css';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
-import EventList from './components/EventList';
-import Register from './components/Register';
-import Login from './components/Login';
+import { Route, Routes } from 'react-router-dom';
+
+// Shared components
 import ProtectedRoute from './components/ProtectedRoute';
-import CreateEventPage from './components/CreateEventPage';
+import Navbar from './components/Navbar';
+
+// Auth pages (stay in components/ — not layout-level pages)
+import Login from './components/Login';
+import Register from './components/Register';
+
+// TODO: Delete EventList once EventsPage is fully implemented
+import EventList from './components/EventList';
+
+// Pages
+import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
+// TODO: import EventsPage from './pages/EventsPage'; — uncomment when EventsPage is implemented and EventList is removed
+import EventDetailPage from './pages/EventDetailPage';
+import EventFormPage from './pages/EventFormPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import TasksPage from './pages/TasksPage';
+import MenuPage from './pages/MenuPage';
+import MenuEditorPage from './pages/MenuEditorPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
-  const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('token');
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light px-3 fixed-top w-100">
-        <Link className="navbar-brand" to="/">Catering Management</Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navMenu"
-          aria-controls="navMenu"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
-        <div className="collapse navbar-collapse" id="navMenu">
-          <div className="navbar-nav ms-auto">
-            {isAuthenticated ? (
-              <>
-                <Link className="nav-link" to="/">Events</Link>
-                <button className="nav-link btn btn-link" onClick={handleLogout} style={{ textAlign: 'left' }}>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link className="nav-link" to="/register">Register</Link>
-                <Link className="nav-link" to="/login">Login</Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container page-wrapper" style={{ paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }}>
         <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<EventList />} />
-          </Route>
-          <Route path="/register" element={<Register />} />
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/events/new" element={<CreateEventPage />} />
-          <Route path="/events/edit/:id" element={<div>Edit Event Page</div>} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<HomePage />} />
+
+            {/* Events — TODO: swap EventList for EventsPage once EventsPage is implemented */}
+            <Route path="/events" element={<EventList />} />
+            <Route path="/events/new" element={<EventFormPage />} />
+            <Route path="/events/:id" element={<EventDetailPage />} />
+            <Route path="/events/:id/edit" element={<EventFormPage />} />
+
+            {/* Analytics */}
+            <Route path="/analytics" element={<AnalyticsPage />} />
+
+            {/* Tasks */}
+            <Route path="/tasks" element={<TasksPage />} />
+
+            {/* Menus */}
+            <Route path="/menus" element={<MenuPage />} />
+            <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
+
+            {/* Profile */}
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
         </Routes>
       </main>
     </>

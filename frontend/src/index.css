@@ -12,3 +12,6 @@
 @import './styles/login.css'; /* login & register pages          */
 @import './styles/components.css'; /* cards, tables, alerts, badges   */
 @import './styles/layout.css'; /* page wrappers, empty states     */
+@import './styles/events.css'; /* event detail header + tabs      */
+@import './styles/tasks.css'; /* task status badges, task form   */
+@import './styles/analytics.css'; /* stat grid, bar charts           */

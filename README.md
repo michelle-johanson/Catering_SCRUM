@@ -212,6 +212,28 @@ _Planned at the start of Sprint 3._
 
 ---
 
+### Navigation & Access Control
+
+**REQ-NAV-01**
+✅ While a user is not authenticated, the system shall display a public landing page with links to login and register.
+
+**REQ-NAV-02**
+✅ While a user is not authenticated, the system shall restrict the navigation bar to a single login link.
+
+**REQ-NAV-03**
+✅ When a user is authenticated, the system shall display a navigation bar with links to all major pages and a logout button.
+
+**REQ-NAV-04**
+✅ When an unauthenticated user attempts to access a protected page, the system shall redirect them to the login page.
+
+**REQ-NAV-05**
+✅ When a user logs in successfully, the system shall redirect them to the dashboard.
+
+**REQ-NAV-06**
+✅ When a user logs out, the system shall clear their session and redirect them to the landing page.
+
+---
+
 ### Authentication
 
 **REQ-AUTH-01**
@@ -234,73 +256,140 @@ _Planned at the start of Sprint 3._
 
 ---
 
+### User Profile
+
+**REQ-PROF-01**
+✅ The system shall allow an authenticated user to view their username, email, and role on a dedicated profile page.
+
+**REQ-PROF-02**
+✅ When an authenticated user submits updated profile information, the system shall persist changes to username and email.
+
+**REQ-PROF-03**
+✅ When a user updates their username, the system shall update the displayed name in the navigation bar.
+
+---
+
+### Dashboard
+
+**REQ-DASH-01**
+❌ The system shall display a dashboard to authenticated users showing a summary of total events, upcoming events, total tasks, and total budget.
+
+**REQ-DASH-02**
+❌ The system shall display the five most recent events on the dashboard.
+
+**REQ-DASH-03**
+❌ The dashboard shall provide quick-action buttons for creating a new event and creating a new task.
+
+---
+
 ### Event Management
 
 **REQ-EVT-01**
-❌ The system shall allow an authenticated admin to create an event with a name, date, guest count, and budget.
+✅ The system shall allow an authenticated user to create an event with a name, date, guest count, and budget.
 
 **REQ-EVT-02**
-❌ The system shall associate every event with the user ID of the admin who created it.
+✅ The system shall associate every event with the user ID of the user who created it.
 
 **REQ-EVT-03**
-❌ When a request is made to retrieve a specific event by ID, the system shall return a 404 Not Found response if no matching event exists.
+✅ When a request is made to retrieve a specific event by ID, the system shall return a 404 Not Found response if no matching event exists.
 
 **REQ-EVT-04**
-❌ When an admin updates an event, the system shall persist changes to name, date, guest count, and budget.
+✅ When a user updates an event, the system shall persist changes to name, date, guest count, and budget.
 
 **REQ-EVT-05**
-❌ When an event is deleted, the system shall cascade delete all menus and menu items associated with that event.
+❌ When an event is deleted, the system shall cascade delete all menus, menu items, and tasks associated with that event.
 
 **REQ-EVT-06**
-✅ The system shall allow retrieval of all events as a list.
+✅ The system shall display all events in a list with each event name linking to its detail page.
+
+**REQ-EVT-07**
+❌ The system shall display an event detail page showing the event's overview, assigned menus, and assigned tasks.
+
+---
+
+### Task Management
+
+**REQ-TASK-01**
+❌ The system shall allow an authenticated user to create a task with a title, description, status, and optional due date, associated with a specific event.
+
+**REQ-TASK-02**
+❌ The system shall support three task statuses: Pending, In Progress, and Done.
+
+**REQ-TASK-03**
+❌ When a user updates a task, the system shall persist changes to title, description, status, and due date.
+
+**REQ-TASK-04**
+❌ When a task is deleted, the system shall remove it permanently.
+
+**REQ-TASK-05**
+❌ The system shall allow retrieval of all tasks associated with a specific event.
+
+**REQ-TASK-06**
+❌ The system shall display all tasks in a filterable list, allowing the user to filter by event.
 
 ---
 
 ### Menu Management
 
 **REQ-MENU-01**
-❌ The system shall allow an authenticated admin to create a menu and associate it with a specific event.
+❌ The system shall allow an authenticated user to create a menu and associate it with a specific event.
 
 **REQ-MENU-02**
-❌ When a request is made to retrieve a menu by ID, the system shall return a 404 Not Found response if no matching menu exists.
+✅ When a request is made to retrieve a menu by ID, the system shall return a 404 Not Found response if no matching menu exists.
 
 **REQ-MENU-03**
 ❌ When a menu is deleted, the system shall cascade delete all menu items associated with that menu.
 
 **REQ-MENU-04**
-❌ The system shall allow retrieval of all menus as a list.
+❌ The system shall display all menus grouped by event.
 
 ---
 
 ### Menu Items
 
 **REQ-ITEM-01**
-❌ The system shall allow an authenticated admin to add a menu item with a name, category, and quantity ordered, and associate it with a specific menu.
+❌ The system shall allow an authenticated user to add a menu item with a name, category, and quantity ordered, and associate it with a specific menu.
 
 **REQ-ITEM-02**
-❌ The system shall default the quantity wasted for a new menu item to zero.
+✅ The system shall default the quantity wasted for a new menu item to zero.
 
 **REQ-ITEM-03**
-❌ When an admin logs post-event waste, the system shall allow updating the quantity wasted for any existing menu item.
+❌ When a user logs post-event waste, the system shall allow updating the quantity wasted for any existing menu item.
 
 **REQ-ITEM-04**
-❌ When a request is made to retrieve a menu item by ID, the system shall return a 404 Not Found response if no matching item exists.
+✅ When a request is made to retrieve a menu item by ID, the system shall return a 404 Not Found response if no matching item exists.
 
 **REQ-ITEM-05**
-❌ The system shall allow retrieval of all menu items as a list.
+❌ The system shall display all menu items for a given menu in an editable table.
+
+---
+
+### Analytics
+
+**REQ-ANALYTICS-01**
+❌ The system shall display an analytics page showing summary statistics: total events, total tasks, average guest count, and total budget across all events.
+
+**REQ-ANALYTICS-02**
+❌ The system shall display a breakdown of events grouped by month.
+
+**REQ-ANALYTICS-03**
+❌ The system shall display a task completion breakdown showing counts for each status (Pending, In Progress, Done).
+
+**REQ-ANALYTICS-04**
+❌ The system shall display a budget distribution chart grouping events into low, medium, and high budget ranges.
 
 ---
 
 ### Food Waste Logging
 
 **REQ-WASTE-01**
-❌ The system shall allow an admin to record leftover food quantities for any menu item after an event concludes.
+❌ The system shall allow a user to record leftover food quantities for any menu item after an event concludes.
 
 **REQ-WASTE-02**
-❌ The system shall persist quantity-wasted data at the menu item level, linked to the menu and event it belongs to.
+✅ The system shall persist quantity-wasted data at the menu item level, linked to the menu and event it belongs to.
 
 **REQ-WASTE-03**
-❌ The system shall retain historical waste data across all past events to support future recommendation calculations.
+✅ The system shall retain historical waste data across all past events to support future recommendation calculations.
 
 ---
 
@@ -310,7 +399,7 @@ _Planned at the start of Sprint 3._
 ❌ Where the recommendations feature is enabled, the system shall analyze historical waste data across past events of the same type before generating a quantity recommendation.
 
 **REQ-REC-02**
-❌ When an admin creates a new event, the system shall provide a recommended food quantity for each menu item based on guest count and historical waste trends for similar events.
+❌ When a user creates a new event, the system shall provide a recommended food quantity for each menu item based on guest count and historical waste trends for similar events.
 
 **REQ-REC-03**
 ❌ If fewer than three historical events of a matching type exist, the system shall fall back to a weighted average across all available past events.
