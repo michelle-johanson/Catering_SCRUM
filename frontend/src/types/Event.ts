@@ -4,10 +4,13 @@ import type { Menu } from './Menu'; // You'll need to create this one next!
 export type Event = {
   id: number;
   name: string;
-  date: string; 
+  date: string;
   guestCount: number;
   budget: number;
+  foodWasteLbs?: number;
+  totalCost?: number;
+  totalSales?: number;
   createdByUserId: number;
-  createdByUser?: User; 
+  createdByUser?: User;
   menus: Menu[];
 };

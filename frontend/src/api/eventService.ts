@@ -8,6 +8,9 @@ export interface CreateEventRequest {
   date: string;
   guestCount: number;
   budget: number;
+  foodWasteLbs?: number;
+  totalCost?: number;
+  totalSales?: number;
   createdByUserId: number;
 }
 
@@ -76,6 +79,9 @@ export interface UpdateEventRequest {
   date: string;
   guestCount: number;
   budget: number;
+  foodWasteLbs?: number;
+  totalCost?: number;
+  totalSales?: number;
   createdByUserId: number;
 }
 

@@ -18,6 +18,12 @@ public class Event
     [Required]
     public decimal Budget { get; set; }
 
+    public decimal? FoodWasteLbs { get; set; }
+
+    public decimal? TotalCost { get; set; }
+
+    public decimal? TotalSales { get; set; }
+
     [Required]
     public int CreatedByUserId { get; set; }
 
