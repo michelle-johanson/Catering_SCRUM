@@ -1,87 +1,42 @@
-import type { Task } from '../types/Task';
 import { withAuthHeaders } from './loginService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
-export interface CreateTaskRequest {
-  title: string;
-  description?: string;
-  status: 'Pending' | 'InProgress' | 'Done';
-  dueDate?: string;
-  eventId: number;
-}
-
-export interface UpdateTaskRequest extends CreateTaskRequest {
-  id: number;
-}
-
-export const fetchTasks = async (): Promise<Task[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/tasks`, {
-      headers: withAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return (await response.json()) as Task[];
-  } catch (error) {
-    console.error('Failed to fetch tasks:', error);
-    return [];
-  }
+export const fetchTasks = async () => {
+  const response = await fetch(`${API_BASE_URL}/Tasks`, { headers: withAuthHeaders() });
+  if (!response.ok) throw new Error('Failed to fetch tasks');
+  return response.json();
 };
 
-export const fetchTasksByEvent = async (
-  eventId: number | string
-): Promise<Task[]> => {
-  const response = await fetch(`${API_BASE_URL}/tasks/byevent/${eventId}`, {
-    headers: withAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return (await response.json()) as Task[];
+export const fetchTasksByEvent = async (eventId: number) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/byevent/${eventId}`, { headers: withAuthHeaders() });
+  if (!response.ok) throw new Error('Failed to fetch tasks for event');
+  return response.json();
 };
 
-export const createTask = async (data: CreateTaskRequest): Promise<Task> => {
-  const response = await fetch(`${API_BASE_URL}/tasks`, {
+export const createTask = async (taskData: any) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks`, {
     method: 'POST',
     headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify(data),
+    body: JSON.stringify(taskData)
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return (await response.json()) as Task;
+  if (!response.ok) throw new Error('Failed to create task');
+  return response.json();
 };
 
-export const updateTask = async (
-  id: number | string,
-  data: UpdateTaskRequest
-): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+export const updateTask = async (id: number, taskData: any) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/${id}`, {
     method: 'PUT',
     headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify(data),
+    body: JSON.stringify(taskData)
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  if (!response.ok) throw new Error('Failed to update task');
 };
 
-export const deleteTask = async (id: number | string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+export const deleteTask = async (id: number) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/${id}`, {
     method: 'DELETE',
-    headers: withAuthHeaders(),
+    headers: withAuthHeaders()
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  if (!response.ok) throw new Error('Failed to delete task');
 };

@@ -1,23 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchEvents } from '../api/eventService';
+import { fetchTasks } from '../api/taskService';
 import { getAuthUsername } from '../api/loginService';
 import type { Event } from '../types/Event';
+import type { Task } from '../types/Task';
 import '../styles/dashboard.css';
 
 function HomePage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await fetchEvents();
-        setEvents(data);
+        const [eventsData, tasksData] = await Promise.all([
+          fetchEvents(),
+          fetchTasks().catch(() => [])
+        ]);
+        setEvents(eventsData);
+        setTasks(tasksData);
       } catch {
-        setError('Failed to load events.');
+        setError('Failed to load dashboard data.');
       } finally {
         setLoading(false);
       }
@@ -186,13 +193,42 @@ function HomePage() {
         </>
       )}
 
-      {/* --- Upcoming Tasks (placeholder — wire up once task API is ready) --- */}
+      {/* --- Upcoming Tasks --- */}
       <h3 className="section-subtitle">Upcoming Tasks</h3>
       <div className="card p-3 mb-4">
-        <p className="text-muted mb-0">
-          Task tracking coming soon. Once tasks are connected, your upcoming
-          and overdue tasks will appear here.
-        </p>
+        {tasks.length === 0 ? (
+          <p className="text-muted mb-0">
+            No tasks found. Track what needs to be done by going to the Tasks page!
+          </p>
+        ) : (
+          <ul className="list-group list-group-flush">
+            {tasks.filter(t => t.status !== 'Done').slice(0, 5).map(task => {
+              const ev = events.find(e => e.id === task.eventId);
+              return (
+                <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <strong>{task.title}</strong>
+                    {ev && <span className="text-muted ms-2 px-2 border-start">{ev.name}</span>}
+                  </div>
+                  <div className="d-flex align-items-center">
+                    {task.dueDate && (
+                      <small className={`me-3 ${new Date(task.dueDate) < now ? 'text-danger fw-bold' : 'text-muted'}`}>
+                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                      </small>
+                    )}
+                    <button 
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => navigate('/tasks', { state: { editTaskId: task.id } })}
+                      title="Manage Task"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       {/* --- Upcoming Events --- */}
