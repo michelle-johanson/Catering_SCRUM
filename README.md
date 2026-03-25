@@ -1,5 +1,15 @@
 # Catering Management System
 
+Built by:
+Bradford, Conrad
+Faylor, Josh
+Johanson, Michelle
+Jorgensen, Spencer
+Mitton, Tyler
+Powers, Chase
+Shim, Jaewon
+Wong, Sabrina
+
 A full-stack catering platform that helps catering business owners reduce food waste and increase profit margins. The system collects event, menu, and guest data, then uses historical waste logs to generate smarter food quantity recommendations over time.
 
 **Tech Stack:** React 19 + TypeScript (Vite) · ASP.NET Core (C#) · PostgreSQL + Entity Framework Core
