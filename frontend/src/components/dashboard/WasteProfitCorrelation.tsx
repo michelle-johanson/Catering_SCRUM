@@ -7,6 +7,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import type { ChartOptions, TooltipItem } from 'chart.js';
 import type { Event } from '../../types/Event';
 
 ChartJS.register(LinearScale, PointElement, Title, Tooltip, Legend);
@@ -38,7 +39,7 @@ export default function WasteProfitCorrelation({ events }: Props) {
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'scatter'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -50,8 +51,11 @@ export default function WasteProfitCorrelation({ events }: Props) {
       },
       tooltip: {
         callbacks: {
-          label: (ctx: { parsed: { x: number; y: number } }) =>
-            `Waste: ${ctx.parsed.x} lbs, Profit: $${ctx.parsed.y.toFixed(2)}`,
+          label: (ctx: TooltipItem<'scatter'>) => {
+            const x = ctx.parsed.x ?? 0;
+            const y = ctx.parsed.y ?? 0;
+            return `Waste: ${x} lbs, Profit: $${y.toFixed(2)}`;
+          },
         },
       },
     },

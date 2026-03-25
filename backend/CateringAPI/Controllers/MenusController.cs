@@ -26,6 +26,15 @@ namespace CateringAPI.Controllers
             return await _context.Menus.ToListAsync();
         }
 
+        [HttpGet("byevent/{eventId}")]
+        public async Task<ActionResult<IEnumerable<Menu>>> GetMenusByEvent(int eventId)
+        {
+            return await _context.Menus
+                .Where(m => m.EventId == eventId)
+                .Include(m => m.MenuItems)
+                .ToListAsync();
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Menu>> GetMenu(int id)
         {

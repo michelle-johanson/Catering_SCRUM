@@ -5,19 +5,68 @@
    All values use design tokens from globals.css.
    ============================================================= */
 
-/* TODO: Implement once EventDetailPage is built.
-   Planned classes:
+.event-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
 
-   Event detail header block:
-   .event-detail-header        — flex row: title on left, action buttons on right
-   .event-detail-title         — --font-display, --text-2xl, --color-text-primary
-   .event-meta                 — flex row of meta chips (date, guests, budget)
-   .event-meta-chip            — pill: --color-surface-raised bg, --text-sm, --space-2 padding
+.event-detail-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
 
-   Section tab headers (Overview / Menus / Tasks):
-   .detail-tabs                — flex row of tab buttons, border-bottom --color-border
-   .detail-tab                 — button, no border, --text-sm, --weight-medium, padding --space-3 --space-4
-                                 default color: --color-text-secondary
-   .detail-tab.active          — border-bottom 2px solid --color-primary, color --color-primary
-   .detail-tab-panel           — padding-top --space-6
-*/
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.event-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.detail-tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  margin-top: var(--space-6);
+}
+
+.detail-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+}
+
+.detail-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.detail-tab.active {
+  border-bottom-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.detail-tab-panel {
+  padding-top: var(--space-6);
+}

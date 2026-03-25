@@ -30,4 +30,6 @@ public class Event
     public User? CreatedByUser { get; set; }
 
     public ICollection<Menu> Menus { get; set; } = new List<Menu>();
+
+    public ICollection<CateringTask> Tasks { get; set; } = new List<CateringTask>();
 }

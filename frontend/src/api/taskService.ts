@@ -1,20 +1,87 @@
-// TODO: taskService — API calls for Task CRUD
-//
-// All functions follow the same pattern as eventService.ts:
-// - Use withAuthHeaders() for all requests
-// - Throw on non-ok responses (don't swallow errors except in fetchTasks which returns [])
-// - Use API_BASE_URL from import.meta.env.VITE_API_URL ?? '/api'
-//
-// Backend endpoints (TasksController):
-//   GET    /api/tasks                    → fetchTasks(): Promise<Task[]>
-//   GET    /api/tasks/byevent/:eventId   → fetchTasksByEvent(eventId): Promise<Task[]>
-//   POST   /api/tasks                    → createTask(data): Promise<Task>
-//   PUT    /api/tasks/:id                → updateTask(id, data): Promise<void>
-//   DELETE /api/tasks/:id                → deleteTask(id): Promise<void>
-//
-// CreateTaskRequest shape:
-//   { title: string; description?: string; status: string; dueDate?: string; eventId: number }
-//
-// Imports needed:
-// import type { Task } from '../types/Task';
-// import { withAuthHeaders } from './loginService';
+import type { Task } from '../types/Task';
+import { withAuthHeaders } from './loginService';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  status: 'Pending' | 'InProgress' | 'Done';
+  dueDate?: string;
+  eventId: number;
+}
+
+export interface UpdateTaskRequest extends CreateTaskRequest {
+  id: number;
+}
+
+export const fetchTasks = async (): Promise<Task[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      headers: withAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return (await response.json()) as Task[];
+  } catch (error) {
+    console.error('Failed to fetch tasks:', error);
+    return [];
+  }
+};
+
+export const fetchTasksByEvent = async (
+  eventId: number | string
+): Promise<Task[]> => {
+  const response = await fetch(`${API_BASE_URL}/tasks/byevent/${eventId}`, {
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Task[];
+};
+
+export const createTask = async (data: CreateTaskRequest): Promise<Task> => {
+  const response = await fetch(`${API_BASE_URL}/tasks`, {
+    method: 'POST',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Task;
+};
+
+export const updateTask = async (
+  id: number | string,
+  data: UpdateTaskRequest
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const deleteTask = async (id: number | string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    method: 'DELETE',
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};

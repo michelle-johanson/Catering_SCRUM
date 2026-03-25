@@ -3,6 +3,7 @@
 // backend/CateringAPI/Program.cs
 
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using CateringAPI.Data; // Required to access CateringDbContext
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,12 @@ builder.Services.AddDbContext<CateringDbContext>(options =>
     options.UseNpgsql(defaultConnection));
 
 // Add support for Controllers
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 // 1. Configure CORS 
 builder.Services.AddCors(options =>

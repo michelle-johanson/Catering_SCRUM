@@ -33,7 +33,11 @@ namespace CateringAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
-            var targetEvent = await _context.Events.FindAsync(id);
+            var targetEvent = await _context.Events
+                .Include(e => e.Menus)
+                    .ThenInclude(m => m.MenuItems)
+                .Include(e => e.Tasks)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (targetEvent == null)
             {
