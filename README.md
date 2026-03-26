@@ -186,8 +186,6 @@ git merge dev
 2. ✅ When a menu is deleted, the system shall cascade delete all menu items associated with that menu.
 3. ✅ The system shall display all menus grouped by event.
 
----
-
 ### Menu Items & Food Waste Logging
 
 1. ✅ The system shall allow an authenticated user to add, edit, and delete menu items with a name, category, and quantity ordered.
