@@ -38,7 +38,26 @@
 .nav-link:hover,
 .nav-link.active {
   color: var(--color-primary) !important;
-  background-color: var(--color-primary-light);
+  background-color: color-mix(in srgb, var(--color-primary-light) 35%, #ffffff);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary-light) 55%, #ffffff);
+}
+
+.nav-logout-btn {
+  color: var(--color-text-secondary);
+  border-color: transparent;
+  background: transparent;
+}
+
+.nav-logout-btn:hover,
+.nav-logout-btn:focus,
+.nav-logout-btn:active,
+.nav-logout-btn:focus-visible {
+  color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary-light) 35%, #ffffff);
+  border-color: transparent;
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary-light) 55%, #ffffff);
 }
 
 /* Collapse toggle on mobile */
@@ -47,5 +66,5 @@
 }
 
 .navbar-toggler:focus {
-  box-shadow: 0 0 0 3px rgba(74, 94, 58, 0.12);
+  box-shadow: 0 0 0 3px rgba(127, 168, 201, 0.3);
 }

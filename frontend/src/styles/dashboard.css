@@ -52,7 +52,7 @@
 }
 
 .text-success {
-  color: var(--color-success) !important;
+  color: var(--color-primary) !important;
 }
 
 .text-danger {
@@ -74,6 +74,10 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-bottom: var(--space-8);
+}
+
+.needs-attention-card {
+  border-left: 8px solid var(--color-primary);
 }
 
 /* --- Chart grid --- */

@@ -2,16 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchEventById } from '../api/eventService';
-import {
-  createMenu,
-  deleteMenu,
-  fetchMenusByEvent,
-} from '../api/menuService';
-import {
-  createTask,
-  deleteTask,
-  fetchTasksByEvent,
-} from '../api/taskService';
+import { createMenu, deleteMenu, fetchMenusByEvent } from '../api/menuService';
+import { createTask, deleteTask, fetchTasksByEvent } from '../api/taskService';
 import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
 import type { Task } from '../types/Task';
@@ -84,7 +76,11 @@ function EventDetailPage() {
     if (!event?.date) return '';
     const d = new Date(event.date);
     if (Number.isNaN(d.getTime())) return event.date;
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   }, [event?.date]);
 
   const statusClass = (status: Task['status']) => {
@@ -153,7 +149,12 @@ function EventDetailPage() {
         eventId,
       });
       setTasks((prev) => [created, ...prev]);
-      setTaskForm({ title: '', description: '', status: 'Pending', dueDate: '' });
+      setTaskForm({
+        title: '',
+        description: '',
+        status: 'Pending',
+        dueDate: '',
+      });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to add task.';
@@ -189,7 +190,10 @@ function EventDetailPage() {
   if (error) {
     return (
       <div>
-        <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate('/events')}
+        >
           ← Back
         </button>
         <div className="alert alert-danger" role="alert">
@@ -202,7 +206,10 @@ function EventDetailPage() {
   if (!event) {
     return (
       <div>
-        <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate('/events')}
+        >
           ← Back
         </button>
         <div className="alert alert-warning" role="alert">
@@ -214,7 +221,10 @@ function EventDetailPage() {
 
   return (
     <div>
-      <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+      <button
+        className="btn btn-secondary mb-3"
+        onClick={() => navigate('/events')}
+      >
         ← Back
       </button>
 
@@ -224,7 +234,9 @@ function EventDetailPage() {
             <h2 className="event-detail-title">{event.name}</h2>
             <div className="event-meta">
               <span className="event-meta-chip">Date: {formattedDate}</span>
-              <span className="event-meta-chip">Guests: {event.guestCount}</span>
+              <span className="event-meta-chip">
+                Guests: {event.guestCount}
+              </span>
               <span className="event-meta-chip">
                 Budget: ${Number(event.budget).toFixed(2)}
               </span>
@@ -316,7 +328,9 @@ function EventDetailPage() {
                 <div className="card p-3">
                   <div className="text-muted mb-1">Food Waste (lbs)</div>
                   <div>
-                    {event.foodWasteLbs != null ? Number(event.foodWasteLbs) : '—'}
+                    {event.foodWasteLbs != null
+                      ? Number(event.foodWasteLbs)
+                      : '—'}
                   </div>
                 </div>
               </div>
@@ -325,7 +339,10 @@ function EventDetailPage() {
 
           {activeTab === 'menus' && (
             <div>
-              <div className="d-flex gap-2 align-items-end mb-3" style={{ flexWrap: 'wrap' }}>
+              <div
+                className="d-flex gap-2 align-items-end mb-3"
+                style={{ flexWrap: 'wrap' }}
+              >
                 <div style={{ minWidth: '16rem' }}>
                   <label htmlFor="newMenuName">New menu name</label>
                   <input
@@ -366,7 +383,7 @@ function EventDetailPage() {
                       <summary className="d-flex justify-content-between align-items-center">
                         <strong>{m.name}</strong>
                         <button
-                          className="btn btn-sm btn-danger"
+                          className="btn btn-sm btn-secondary"
                           type="button"
                           onClick={(e) => {
                             e.preventDefault();
@@ -400,7 +417,10 @@ function EventDetailPage() {
                             </tbody>
                           </table>
                         ) : (
-                          <div className="text-muted" style={{ fontSize: 'var(--text-sm)' }}>
+                          <div
+                            className="text-muted"
+                            style={{ fontSize: 'var(--text-sm)' }}
+                          >
                             No menu items yet. Add items from the Menus page.
                           </div>
                         )}
@@ -423,7 +443,10 @@ function EventDetailPage() {
                       type="text"
                       value={taskForm.title}
                       onChange={(e) =>
-                        setTaskForm((prev) => ({ ...prev, title: e.target.value }))
+                        setTaskForm((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       disabled={isAddingTask}
                       placeholder="e.g. Confirm staffing"
@@ -514,21 +537,25 @@ function EventDetailPage() {
                         const dueLabel =
                           due && !Number.isNaN(due.getTime())
                             ? due.toLocaleDateString()
-                            : t.dueDate ?? '—';
+                            : (t.dueDate ?? '—');
                         return (
                           <tr
                             key={t.id}
-                            className={t.status === 'Done' ? 'task-row-done' : undefined}
+                            className={
+                              t.status === 'Done' ? 'task-row-done' : undefined
+                            }
                           >
                             <td className="task-title">{t.title}</td>
                             <td>{t.description ?? '—'}</td>
                             <td>
-                              <span className={statusClass(t.status)}>{t.status}</span>
+                              <span className={statusClass(t.status)}>
+                                {t.status}
+                              </span>
                             </td>
                             <td>{dueLabel}</td>
                             <td>
                               <button
-                                className="btn btn-sm btn-danger"
+                                className="btn btn-sm btn-secondary"
                                 type="button"
                                 onClick={() => void handleDeleteTask(t)}
                               >
