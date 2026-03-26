@@ -25,27 +25,6 @@ import TasksPage from './pages/TasksPage';
 import MenuPage from './pages/MenuPage';
 import MenuEditorPage from './pages/MenuEditorPage';
 import ProfilePage from './pages/ProfilePage';
-<<<<<<< HEAD
-import PreLandingPage from './pages/PrelandingPage';
-
-function App() {
-  const location = useLocation();
-
-  const isPreLanding = location.pathname === "/";
-  return (
-    <>
-
-      {location.pathname !== "/" && <Navbar />}
-
-      <main
-        className={isPreLanding ? "" : "container page-wrapper"}
-        style={
-          isPreLanding
-            ? {}
-            : { paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }
-        }
-      >
-=======
 import StaffPage from './pages/StaffPage';
 
 function App() {
@@ -59,45 +38,39 @@ function App() {
       <div className={loggedIn ? 'main-wrapper' : ''}>
         {loggedIn && <Header />}
         <main className={loggedIn ? 'page-content' : ''}>
->>>>>>> c992fbc2b42819076df2ae5870e6bb1b3f25d581
-        <Routes>
-          {/* Public routes */}
-          {/* CHANGED: root now shows PreLandingPage */}
-          <Route path="/" element={<PreLandingPage />} />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* ADDED: your original landing page moved here */}
-          <Route path="/home" element={<LandingPage />} />
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<HomePage />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+              {/* Events — TODO: swap EventList for EventsPage once EventsPage is implemented */}
+              <Route path="/events" element={<EventList />} />
+              <Route path="/events/new" element={<EventFormPage />} />
+              <Route path="/events/:id" element={<EventDetailPage />} />
+              <Route path="/events/:id/edit" element={<EventFormPage />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<HomePage />} />
+              {/* Analytics */}
+              <Route path="/analytics" element={<AnalyticsPage />} />
 
-            {/* Events — TODO: swap EventList for EventsPage once EventsPage is implemented */}
-            <Route path="/events" element={<EventList />} />
-            <Route path="/events/new" element={<EventFormPage />} />
-            <Route path="/events/:id" element={<EventDetailPage />} />
-            <Route path="/events/:id/edit" element={<EventFormPage />} />
+              {/* Tasks */}
+              <Route path="/tasks" element={<TasksPage />} />
 
-            {/* Analytics */}
-            <Route path="/analytics" element={<AnalyticsPage />} />
+              {/* Menus */}
+              <Route path="/menus" element={<MenuPage />} />
+              <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
 
-            {/* Tasks */}
-            <Route path="/tasks" element={<TasksPage />} />
+              {/* Staff */}
+              <Route path="/staff" element={<StaffPage />} />
 
-            {/* Menus */}
-            <Route path="/menus" element={<MenuPage />} />
-            <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
-
-            {/* Staff */}
-            <Route path="/staff" element={<StaffPage />} />
-
-            {/* Profile */}
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
-        </Routes>
+              {/* Profile */}
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
+          </Routes>
         </main>
       </div>
     </div>
