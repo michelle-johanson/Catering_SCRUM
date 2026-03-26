@@ -64,6 +64,7 @@ function Login() {
       storeAuthSession({
         token: response.token,
         username: response.username ?? formData.username,
+        displayName: response.displayName,
         userId: response.id,
         companyId: response.companyId,
         companyName: response.companyName,
