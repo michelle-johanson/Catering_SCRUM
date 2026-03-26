@@ -16,6 +16,12 @@ interface Props {
   events: Event[];
 }
 
+const GOOD_GREEN = '#2f855a';
+const TARGET_BLUE = '#365f86';
+const BAD_ORANGE = '#b4690e';
+const WASTE_TARGET_LBS = 20;
+const STRONG_PERFORMANCE_WASTE_LBS = 15;
+
 export default function WasteProfitCorrelation({ events }: Props) {
   const valid = events.filter(
     (e) => e.foodWasteLbs != null && e.totalSales != null && e.totalCost != null
@@ -26,13 +32,40 @@ export default function WasteProfitCorrelation({ events }: Props) {
     y: (e.totalSales ?? 0) - (e.totalCost ?? 0),
   }));
 
+  const highProfitPoints = points.filter(
+    (p) => p.y > 0 && p.x <= STRONG_PERFORMANCE_WASTE_LBS
+  );
+  const onTargetPoints = points.filter(
+    (p) =>
+      p.y > 0 && p.x > STRONG_PERFORMANCE_WASTE_LBS && p.x <= WASTE_TARGET_LBS
+  );
+  const highWastePoints = points.filter(
+    (p) => p.y <= 0 || p.x > WASTE_TARGET_LBS
+  );
+
   const data = {
     datasets: [
       {
-        label: 'Events',
-        data: points,
-        backgroundColor: 'rgba(74, 94, 58, 0.6)',
-        borderColor: '#4a5e3a',
+        label: 'High profit',
+        data: highProfitPoints,
+        backgroundColor: GOOD_GREEN,
+        borderColor: GOOD_GREEN,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'On target',
+        data: onTargetPoints,
+        backgroundColor: TARGET_BLUE,
+        borderColor: TARGET_BLUE,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: 'High waste',
+        data: highWastePoints,
+        backgroundColor: BAD_ORANGE,
+        borderColor: BAD_ORANGE,
         pointRadius: 6,
         pointHoverRadius: 8,
       },
@@ -43,7 +76,7 @@ export default function WasteProfitCorrelation({ events }: Props) {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: false },
+      legend: { display: true },
       title: {
         display: true,
         text: 'Food Waste vs. Profit Correlation',

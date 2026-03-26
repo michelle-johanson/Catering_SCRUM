@@ -10,12 +10,12 @@
 :root {
   /* -----------------------------------------------------------
      Colors — Brand
-     Warm olive green, grounded and food-adjacent
+     Slate blue palette for product accents
      ----------------------------------------------------------- */
-  --color-primary: #4a5e3a;
-  --color-primary-hover: #3a4b2c;
-  --color-primary-light: #eef2ea;
-  --color-primary-subtle: #f5f7f2;
+  --color-primary: #4a6b8a;
+  --color-primary-hover: #243650;
+  --color-primary-light: #7fa8c9;
+  --color-primary-subtle: #eef3f8;
 
   /* -----------------------------------------------------------
      Colors — Neutrals
@@ -30,9 +30,9 @@
   /* -----------------------------------------------------------
      Colors — Text
      ----------------------------------------------------------- */
-  --color-text-primary: #1c1c1a;
-  --color-text-secondary: #5c5a55;
-  --color-text-muted: #9c9a94;
+  --color-text-primary: #000000;
+  --color-text-secondary: #4b4b4b;
+  --color-text-muted: #6f6f6f;
   --color-text-inverse: #ffffff;
 
   /* -----------------------------------------------------------
@@ -150,7 +150,7 @@
   --bs-link-color: var(--color-primary);
   --bs-link-hover-color: var(--color-primary-hover);
   --bs-primary: var(--color-primary);
-  --bs-primary-rgb: 74, 94, 58;
+  --bs-primary-rgb: 74, 107, 138;
   --bs-success-rgb: 61, 107, 71;
   --bs-danger-rgb: 139, 58, 58;
   --bs-warning-rgb: 122, 92, 30;

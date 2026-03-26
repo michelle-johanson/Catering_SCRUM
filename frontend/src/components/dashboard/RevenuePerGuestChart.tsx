@@ -23,6 +23,9 @@ interface Props {
   events: Event[];
 }
 
+const GOOD_GREEN_RGBA = 'rgba(47, 133, 90, 0.78)';
+const GOOD_GREEN = '#2f855a';
+
 export default function RevenuePerGuestChart({ events }: Props) {
   const valid = [...events]
     .filter((e) => e.totalSales != null && e.guestCount > 0)
@@ -36,8 +39,8 @@ export default function RevenuePerGuestChart({ events }: Props) {
         data: valid.map((e) =>
           Number(((e.totalSales ?? 0) / e.guestCount).toFixed(2))
         ),
-        backgroundColor: 'rgba(46, 92, 122, 0.7)',
-        borderColor: '#2e5c7a',
+        backgroundColor: GOOD_GREEN_RGBA,
+        borderColor: GOOD_GREEN,
         borderWidth: 1,
       },
     ],

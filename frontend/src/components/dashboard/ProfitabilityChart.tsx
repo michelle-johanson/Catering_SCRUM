@@ -23,6 +23,11 @@ interface Props {
   events: Event[];
 }
 
+const GOOD_GREEN_RGBA = 'rgba(47, 133, 90, 0.78)';
+const GOOD_GREEN = '#2f855a';
+const BAD_ORANGE_RGBA = 'rgba(180, 105, 14, 0.78)';
+const BAD_ORANGE = '#b4690e';
+
 export default function ProfitabilityChart({ events }: Props) {
   const sorted = [...events]
     .filter((e) => e.totalSales != null && e.totalCost != null)
@@ -41,9 +46,9 @@ export default function ProfitabilityChart({ events }: Props) {
         label: 'Margin (%)',
         data: margins,
         backgroundColor: margins.map((m) =>
-          m >= 0 ? 'rgba(61, 107, 71, 0.7)' : 'rgba(139, 58, 58, 0.7)'
+          m >= 0 ? GOOD_GREEN_RGBA : BAD_ORANGE_RGBA
         ),
-        borderColor: margins.map((m) => (m >= 0 ? '#3d6b47' : '#8b3a3a')),
+        borderColor: margins.map((m) => (m >= 0 ? GOOD_GREEN : BAD_ORANGE)),
         borderWidth: 1,
       },
     ],

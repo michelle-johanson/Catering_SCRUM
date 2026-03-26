@@ -1,5 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { isAuthenticated, logoutUser, getAuthUsername } from '../api/loginService';
+import {
+  isAuthenticated,
+  logoutUser,
+  getAuthUsername,
+} from '../api/loginService';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -16,7 +20,6 @@ function Navbar() {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light px-3 fixed-top w-100">
-
       {/* Left side */}
       <div className="navbar-nav me-auto">
         {loggedIn && (
@@ -27,7 +30,10 @@ function Navbar() {
       </div>
 
       {/* Centered brand */}
-      <NavLink className="navbar-brand navbar-brand-center" to={loggedIn ? '/dashboard' : '/'}>
+      <NavLink
+        className="navbar-brand navbar-brand-center"
+        to={loggedIn ? '/dashboard' : '/'}
+      >
         Catering Management
       </NavLink>
 
@@ -48,21 +54,35 @@ function Navbar() {
         <div className="navbar-nav ms-auto align-items-center gap-1">
           {loggedIn ? (
             <>
-              <NavLink className={navLinkClass} to="/dashboard">Dashboard</NavLink>
-              <NavLink className={navLinkClass} to="/events">Events</NavLink>
-              <NavLink className={navLinkClass} to="/tasks">Tasks</NavLink>
-              <NavLink className={navLinkClass} to="/menus">Menus</NavLink>
-              <NavLink className={navLinkClass} to="/analytics">Analytics</NavLink>
-              <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>
+              <NavLink className={navLinkClass} to="/dashboard">
+                Dashboard
+              </NavLink>
+              <NavLink className={navLinkClass} to="/events">
+                Events
+              </NavLink>
+              <NavLink className={navLinkClass} to="/tasks">
+                Tasks
+              </NavLink>
+              <NavLink className={navLinkClass} to="/menus">
+                Menus
+              </NavLink>
+              <NavLink className={navLinkClass} to="/analytics">
+                Analytics
+              </NavLink>
+              <button
+                className="btn btn-sm nav-logout-btn ms-2"
+                onClick={handleLogout}
+              >
                 Logout
               </button>
             </>
           ) : (
-            <NavLink className={navLinkClass} to="/login">Login</NavLink>
+            <NavLink className={navLinkClass} to="/login">
+              Login
+            </NavLink>
           )}
         </div>
       </div>
-
     </nav>
   );
 }

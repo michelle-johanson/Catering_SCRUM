@@ -39,7 +39,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(74, 94, 58, 0.12);
+  box-shadow: 0 0 0 3px rgba(127, 168, 201, 0.3);
 }
 
 input::placeholder,
@@ -97,6 +97,19 @@ textarea.input-error:focus {
 }
 
 .btn-primary {
+  --bs-btn-color: var(--color-text-inverse);
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: var(--color-text-inverse);
+  --bs-btn-hover-bg: var(--color-primary-hover);
+  --bs-btn-hover-border-color: var(--color-primary-hover);
+  --bs-btn-focus-shadow-rgb: 127, 168, 201;
+  --bs-btn-active-color: var(--color-text-inverse);
+  --bs-btn-active-bg: var(--color-primary-hover);
+  --bs-btn-active-border-color: var(--color-primary-hover);
+  --bs-btn-disabled-color: var(--color-text-inverse);
+  --bs-btn-disabled-bg: var(--color-primary);
+  --bs-btn-disabled-border-color: var(--color-primary);
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-text-inverse);
@@ -107,7 +120,19 @@ textarea.input-error:focus {
   background-color: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
   color: var(--color-text-inverse);
-  box-shadow: 0 2px 8px rgba(74, 94, 58, 0.25);
+  box-shadow: 0 2px 8px rgba(74, 107, 138, 0.25);
+}
+
+.btn-primary:active,
+.btn-primary:focus:active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-check:checked + .btn-primary,
+.show > .btn-primary.dropdown-toggle,
+.btn-primary:focus-visible {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  box-shadow: 0 0 0 3px rgba(127, 168, 201, 0.3);
 }
 
 .btn-outline-primary {
@@ -119,6 +144,38 @@ textarea.input-error:focus {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-text-inverse);
+}
+
+.btn-success {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active,
+.btn-success:focus-visible {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+  box-shadow: 0 0 0 3px rgba(127, 168, 201, 0.3);
+}
+
+.btn-outline-danger {
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+  background-color: transparent;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active,
+.btn-outline-danger:focus-visible {
+  color: #ffffff;
+  border-color: var(--color-danger);
+  background-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(139, 58, 58, 0.16);
 }
 
 .btn-ghost {

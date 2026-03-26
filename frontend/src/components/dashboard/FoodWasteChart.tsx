@@ -27,6 +27,9 @@ interface Props {
   events: Event[];
 }
 
+const BAD_ORANGE = '#b4690e';
+const BAD_ORANGE_TINT = 'rgba(180, 105, 14, 0.12)';
+
 export default function FoodWasteChart({ events }: Props) {
   const sorted = [...events]
     .filter((e) => e.foodWasteLbs != null)
@@ -38,8 +41,8 @@ export default function FoodWasteChart({ events }: Props) {
       {
         label: 'Food Waste (lbs)',
         data: sorted.map((e) => e.foodWasteLbs ?? 0),
-        borderColor: '#8b3a3a',
-        backgroundColor: 'rgba(139, 58, 58, 0.1)',
+        borderColor: BAD_ORANGE,
+        backgroundColor: BAD_ORANGE_TINT,
         fill: true,
         tension: 0.3,
         pointRadius: 4,

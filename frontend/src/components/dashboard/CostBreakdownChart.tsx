@@ -8,6 +8,11 @@ interface Props {
   events: Event[];
 }
 
+const COST_ORANGE = 'rgba(180, 105, 14, 0.78)';
+const COST_ORANGE_LIGHT = 'rgba(220, 150, 62, 0.78)';
+const TARGET_BLUE = 'rgba(54, 95, 134, 0.78)';
+const GOOD_GREEN = 'rgba(47, 133, 90, 0.78)';
+
 export default function CostBreakdownChart({ events }: Props) {
   const withFinancials = events.filter(
     (e) => e.totalCost != null && e.totalSales != null
@@ -42,8 +47,8 @@ export default function CostBreakdownChart({ events }: Props) {
         data: [totalCost, Math.abs(totalProfit)],
         backgroundColor:
           totalProfit >= 0
-            ? ['rgba(122, 92, 30, 0.7)', 'rgba(61, 107, 71, 0.7)']
-            : ['rgba(122, 92, 30, 0.7)', 'rgba(139, 58, 58, 0.7)'],
+            ? [COST_ORANGE, GOOD_GREEN]
+            : [COST_ORANGE_LIGHT, TARGET_BLUE],
         borderWidth: 1,
       },
     ],
