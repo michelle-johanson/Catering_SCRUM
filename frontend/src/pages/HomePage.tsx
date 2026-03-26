@@ -95,9 +95,6 @@ function HomePage() {
 
   return (
     <div>
-      <div className="dashboard-header">
-        <h2 className="section-title">Welcome back, {username}</h2>
-      </div>
 
       {/* --- OKR Snapshot --- */}
       <div className="stats-grid">

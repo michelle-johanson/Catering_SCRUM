@@ -9,6 +9,7 @@ interface RegisterResponse {
   token?: string;
   username?: string;
   companyId?: number;
+  companyName?: string;
 }
 
 function Register() {
@@ -81,6 +82,7 @@ function Register() {
         username: data?.username ?? form.username,
         userId: data?.id,
         companyId: data?.companyId,
+        companyName: data?.companyName,
       });
       navigate('/dashboard');
     } catch (err) {

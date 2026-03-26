@@ -66,6 +66,7 @@ function Login() {
         username: response.username ?? formData.username,
         userId: response.id,
         companyId: response.companyId,
+        companyName: response.companyName,
       });
       navigate(from, { replace: true });
     } catch (err) {

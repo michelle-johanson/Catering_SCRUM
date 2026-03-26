@@ -79,13 +79,19 @@ public class AuthController : ControllerBase
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
+        var companyName = await _db.Companies
+            .Where(c => c.Id == companyId)
+            .Select(c => c.Name)
+            .FirstOrDefaultAsync();
+
         return Created("/api/auth/register", new
         {
             user.Id,
             user.Username,
             user.Email,
             user.Role,
-            user.CompanyId
+            user.CompanyId,
+            CompanyName = companyName
         });
     }
 
@@ -105,6 +111,7 @@ public class AuthController : ControllerBase
         }
 
         var user = await _db.Users
+            .Include(u => u.Company)
             .FirstOrDefaultAsync(u => u.Username == request.Username);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -118,7 +125,8 @@ public class AuthController : ControllerBase
             user.Username,
             user.Email,
             user.Role,
-            user.CompanyId
+            user.CompanyId,
+            CompanyName = user.Company?.Name
         });
     }
 }
