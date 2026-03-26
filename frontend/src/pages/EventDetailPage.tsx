@@ -11,6 +11,7 @@ import {
   unassignMenuFromEvent,
 } from '../api/menuService';
 import { createTask, deleteTask, fetchTasksByEvent } from '../api/taskService';
+import { getAuthCompanyId } from '../api/loginService';
 import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
 import type { Task } from '../types/Task';
@@ -197,6 +198,7 @@ function EventDetailPage() {
           ? new Date(taskForm.dueDate).toISOString()
           : undefined,
         eventId,
+        companyId: getAuthCompanyId(),
       });
       setTasks((prev) => [created, ...prev]);
       setTaskForm({

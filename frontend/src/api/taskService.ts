@@ -1,9 +1,11 @@
-import { withAuthHeaders } from './loginService';
+import { withAuthHeaders, getAuthCompanyId } from './loginService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 export const fetchTasks = async () => {
-  const response = await fetch(`${API_BASE_URL}/Tasks`, { headers: withAuthHeaders() });
+  const companyId = getAuthCompanyId();
+  const url = companyId ? `${API_BASE_URL}/Tasks?companyId=${companyId}` : `${API_BASE_URL}/Tasks`;
+  const response = await fetch(url, { headers: withAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch tasks');
   return response.json();
 };

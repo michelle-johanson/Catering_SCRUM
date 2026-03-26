@@ -14,6 +14,12 @@
   padding-bottom: var(--space-16);
 }
 
+/* auth pages (login/register) — full viewport, no sidebar offset */
+.auth-container {
+  min-height: 100vh;
+  padding-top: var(--space-16);
+}
+
 /* -----------------------------------------------------------
    Section headings
    ----------------------------------------------------------- */

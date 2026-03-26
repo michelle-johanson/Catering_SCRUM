@@ -22,11 +22,14 @@ namespace CateringAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Events
+        // GET: api/Events?companyId=1
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents([FromQuery] int? companyId)
         {
-            return await _context.Events.ToListAsync();
+            var query = _context.Events.AsQueryable();
+            if (companyId.HasValue)
+                query = query.Where(e => e.CompanyId == companyId.Value);
+            return await query.ToListAsync();
         }
 
         // GET: api/Events/5

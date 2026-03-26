@@ -17,8 +17,15 @@ public class User
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
 
+    public string? DisplayName { get; set; }
+
     [Required]
     public string Role { get; set; } = "Employee"; // Admin or Employee
+
+    [Required]
+    public int CompanyId { get; set; }
+
+    public Company? Company { get; set; }
 
     public ICollection<Event> Events { get; set; } = new List<Event>();
 }

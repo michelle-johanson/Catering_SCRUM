@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../api/taskService';
 import { fetchEvents } from '../api/eventService';
+import { getAuthCompanyId } from '../api/loginService';
 import type { Task } from '../types/Task';
 import type { Event } from '../types/Event';
 import '../styles/tasks.css';
@@ -86,7 +87,8 @@ function TasksPage() {
     const payload = {
       ...formData,
       eventId: formData.eventId === 'general' ? null : Number(formData.eventId),
-      dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null
+      dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+      companyId: getAuthCompanyId(),
     };
 
     try {
