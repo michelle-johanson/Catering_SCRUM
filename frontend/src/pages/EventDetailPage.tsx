@@ -1,8 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { fetchEventById } from '../api/eventService';
-import { createMenu, deleteMenu, fetchMenusByEvent } from '../api/menuService';
+import {
+  assignMenuToEvent,
+  createMenu,
+  fetchMenus,
+  fetchMenusByEvent,
+  unassignMenuFromEvent,
+} from '../api/menuService';
 import { createTask, deleteTask, fetchTasksByEvent } from '../api/taskService';
 import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
@@ -14,6 +21,7 @@ function EventDetailPage() {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [allMenus, setAllMenus] = useState<Menu[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'menus' | 'tasks'>(
@@ -24,6 +32,8 @@ function EventDetailPage() {
 
   const [newMenuName, setNewMenuName] = useState('');
   const [isAddingMenu, setIsAddingMenu] = useState(false);
+  const [existingMenuIdToAssign, setExistingMenuIdToAssign] = useState('');
+  const [isAssigningExistingMenu, setIsAssigningExistingMenu] = useState(false);
 
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskForm, setTaskForm] = useState<{
@@ -51,15 +61,19 @@ function EventDetailPage() {
       setError(null);
 
       try {
-        const [evt, m, t] = await Promise.all([
-          fetchEventById(id),
-          fetchMenusByEvent(eventId),
-          fetchTasksByEvent(eventId),
-        ]);
+        const [evt, eventMenus, availableMenus, eventTasks] = await Promise.all(
+          [
+            fetchEventById(id),
+            fetchMenusByEvent(eventId),
+            fetchMenus(),
+            fetchTasksByEvent(eventId),
+          ]
+        );
 
         setEvent(evt);
-        setMenus(m);
-        setTasks(t);
+        setMenus(eventMenus);
+        setAllMenus(availableMenus);
+        setTasks(eventTasks);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to load event.';
@@ -104,8 +118,12 @@ function EventDetailPage() {
     setIsAddingMenu(true);
     setError(null);
     try {
-      const created = await createMenu({ name, eventId });
-      setMenus((prev) => [created, ...prev]);
+      const created = await createMenu({ name });
+      await assignMenuToEvent(created.id, eventId);
+      const refreshedMenus = await fetchMenusByEvent(eventId);
+      const refreshedAllMenus = await fetchMenus();
+      setMenus(refreshedMenus);
+      setAllMenus(refreshedAllMenus);
       setNewMenuName('');
     } catch (err) {
       const message =
@@ -116,18 +134,50 @@ function EventDetailPage() {
     }
   };
 
-  const handleDeleteMenu = async (menu: Menu) => {
-    const ok = window.confirm(`Delete menu "${menu.name}"?`);
+  const handleUnassignMenu = async (menu: Menu) => {
+    if (!eventId) return;
+    const ok = window.confirm(`Unassign menu "${menu.name}" from this event?`);
     if (!ok) return;
 
     setError(null);
     try {
-      await deleteMenu(menu.id);
+      await unassignMenuFromEvent(menu.id, eventId);
       setMenus((prev) => prev.filter((m) => m.id !== menu.id));
+      setAllMenus((prev) =>
+        prev.map((m) =>
+          m.id === menu.id
+            ? {
+                ...m,
+                events: (m.events ?? []).filter((e) => e.id !== eventId),
+              }
+            : m
+        )
+      );
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to delete menu.';
+        err instanceof Error ? err.message : 'Failed to unassign menu.';
       setError(message);
+    }
+  };
+
+  const handleAssignExistingMenu = async () => {
+    if (!eventId || !existingMenuIdToAssign) return;
+
+    setIsAssigningExistingMenu(true);
+    setError(null);
+    try {
+      await assignMenuToEvent(Number(existingMenuIdToAssign), eventId);
+      const refreshedMenus = await fetchMenusByEvent(eventId);
+      const refreshedAllMenus = await fetchMenus();
+      setMenus(refreshedMenus);
+      setAllMenus(refreshedAllMenus);
+      setExistingMenuIdToAssign('');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to assign existing menu.';
+      setError(message);
+    } finally {
+      setIsAssigningExistingMenu(false);
     }
   };
 
@@ -362,6 +412,37 @@ function EventDetailPage() {
                 >
                   {isAddingMenu ? 'Adding...' : 'Add Menu'}
                 </button>
+                <div style={{ minWidth: '16rem' }}>
+                  <label htmlFor="existingMenu">Assign existing menu</label>
+                  <select
+                    id="existingMenu"
+                    value={existingMenuIdToAssign}
+                    onChange={(e) => setExistingMenuIdToAssign(e.target.value)}
+                    disabled={isAssigningExistingMenu}
+                  >
+                    <option value="">Choose menu</option>
+                    {allMenus
+                      .filter(
+                        (m) =>
+                          !menus.some(
+                            (assignedMenu) => assignedMenu.id === m.id
+                          )
+                      )
+                      .map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  onClick={() => void handleAssignExistingMenu()}
+                  disabled={isAssigningExistingMenu || !existingMenuIdToAssign}
+                >
+                  {isAssigningExistingMenu ? 'Assigning...' : 'Assign Existing'}
+                </button>
                 <button
                   className="btn btn-secondary"
                   type="button"
@@ -382,16 +463,25 @@ function EventDetailPage() {
                     <details key={m.id} className="card p-3">
                       <summary className="d-flex justify-content-between align-items-center">
                         <strong>{m.name}</strong>
-                        <button
-                          className="btn btn-sm btn-secondary"
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            void handleDeleteMenu(m);
-                          }}
-                        >
-                          Delete
-                        </button>
+                        <div className="d-flex gap-2">
+                          <Link
+                            className="btn btn-sm btn-outline-primary"
+                            to={`/menus/${m.id}/edit`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Edit Items
+                          </Link>
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              void handleUnassignMenu(m);
+                            }}
+                          >
+                            Unassign
+                          </button>
+                        </div>
                       </summary>
 
                       <div className="mt-3">
@@ -555,7 +645,7 @@ function EventDetailPage() {
                             <td>{dueLabel}</td>
                             <td>
                               <button
-                                className="btn btn-sm btn-secondary"
+                                className="btn btn-sm btn-danger"
                                 type="button"
                                 onClick={() => void handleDeleteTask(t)}
                               >

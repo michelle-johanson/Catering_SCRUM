@@ -6,11 +6,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 export interface CreateMenuRequest {
   name: string;
-  eventId: number;
 }
 
-export interface UpdateMenuRequest extends CreateMenuRequest {
+export interface UpdateMenuRequest {
   id: number;
+  name: string;
 }
 
 export interface CreateMenuItemRequest {
@@ -56,6 +56,18 @@ export const fetchMenusByEvent = async (
   return (await response.json()) as Menu[];
 };
 
+export const fetchMenuById = async (id: number | string): Promise<Menu> => {
+  const response = await fetch(`${API_BASE_URL}/menus/${id}`, {
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Menu;
+};
+
 export const createMenu = async (data: CreateMenuRequest): Promise<Menu> => {
   const response = await fetch(`${API_BASE_URL}/menus`, {
     method: 'POST',
@@ -90,6 +102,40 @@ export const deleteMenu = async (id: number | string): Promise<void> => {
     method: 'DELETE',
     headers: withAuthHeaders(),
   });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const assignMenuToEvent = async (
+  menuId: number | string,
+  eventId: number | string
+): Promise<void> => {
+  const response = await fetch(
+    `${API_BASE_URL}/menus/${menuId}/events/${eventId}`,
+    {
+      method: 'POST',
+      headers: withAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const unassignMenuFromEvent = async (
+  menuId: number | string,
+  eventId: number | string
+): Promise<void> => {
+  const response = await fetch(
+    `${API_BASE_URL}/menus/${menuId}/events/${eventId}`,
+    {
+      method: 'DELETE',
+      headers: withAuthHeaders(),
+    }
+  );
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
