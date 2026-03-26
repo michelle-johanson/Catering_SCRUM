@@ -1,6 +1,6 @@
 import type { Menu } from '../types/Menu';
 import type { MenuItem } from '../types/MenuItem';
-import { withAuthHeaders } from './loginService';
+import { withAuthHeaders, getAuthCompanyId } from './loginService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -27,7 +27,9 @@ export interface UpdateMenuItemRequest extends CreateMenuItemRequest {
 
 export const fetchMenus = async (): Promise<Menu[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/menus`, {
+    const companyId = getAuthCompanyId();
+    const url = companyId ? `${API_BASE_URL}/menus?companyId=${companyId}` : `${API_BASE_URL}/menus`;
+    const response = await fetch(url, {
       headers: withAuthHeaders(),
     });
 

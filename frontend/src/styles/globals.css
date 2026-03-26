@@ -132,6 +132,8 @@
   --container-lg: 1024px;
   --container-xl: 1280px;
   --navbar-height: 60px;
+  --sidebar-width: 220px;
+  --header-height: 56px;
 
   /* -----------------------------------------------------------
      Bootstrap overrides

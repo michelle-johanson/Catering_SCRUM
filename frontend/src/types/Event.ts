@@ -10,6 +10,7 @@ export type Event = {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  companyId: number;
   createdByUserId: number;
   createdByUser?: User;
   menus: Menu[];

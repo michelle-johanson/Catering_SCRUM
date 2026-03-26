@@ -3,7 +3,9 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 
 // Shared components
 import ProtectedRoute from './components/ProtectedRoute';
-import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import { isAuthenticated } from './api/loginService';
 
 // Auth pages (stay in components/ — not layout-level pages)
 import Login from './components/Login';
@@ -23,6 +25,7 @@ import TasksPage from './pages/TasksPage';
 import MenuPage from './pages/MenuPage';
 import MenuEditorPage from './pages/MenuEditorPage';
 import ProfilePage from './pages/ProfilePage';
+<<<<<<< HEAD
 import PreLandingPage from './pages/PrelandingPage';
 
 function App() {
@@ -42,6 +45,21 @@ function App() {
             : { paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }
         }
       >
+=======
+import StaffPage from './pages/StaffPage';
+
+function App() {
+  useLocation(); // re-render App on navigation so isAuthenticated() stays current
+  const loggedIn = isAuthenticated();
+
+  return (
+    <div className={loggedIn ? 'app-layout' : ''}>
+      <Sidebar />
+
+      <div className={loggedIn ? 'main-wrapper' : ''}>
+        {loggedIn && <Header />}
+        <main className={loggedIn ? 'page-content' : ''}>
+>>>>>>> c992fbc2b42819076df2ae5870e6bb1b3f25d581
         <Routes>
           {/* Public routes */}
           {/* CHANGED: root now shows PreLandingPage */}
@@ -73,12 +91,16 @@ function App() {
             <Route path="/menus" element={<MenuPage />} />
             <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
 
+            {/* Staff */}
+            <Route path="/staff" element={<StaffPage />} />
+
             {/* Profile */}
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Routes>
-      </main>
-    </>
+        </main>
+      </div>
+    </div>
   );
 }
 

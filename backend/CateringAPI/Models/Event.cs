@@ -25,6 +25,11 @@ public class Event
     public decimal? TotalSales { get; set; }
 
     [Required]
+    public int CompanyId { get; set; }
+
+    public Company? Company { get; set; }
+
+    [Required]
     public int CreatedByUserId { get; set; }
 
     public User? CreatedByUser { get; set; }
