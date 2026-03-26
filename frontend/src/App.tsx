@@ -1,5 +1,5 @@
 import './App.css';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
 // Shared components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -23,16 +23,33 @@ import TasksPage from './pages/TasksPage';
 import MenuPage from './pages/MenuPage';
 import MenuEditorPage from './pages/MenuEditorPage';
 import ProfilePage from './pages/ProfilePage';
+import PreLandingPage from './pages/PrelandingPage';
 
 function App() {
+  const location = useLocation();
+
+  const isPreLanding = location.pathname === "/";
   return (
     <>
-      <Navbar />
 
-      <main className="container page-wrapper" style={{ paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }}>
+      {location.pathname !== "/" && <Navbar />}
+
+      <main
+        className={isPreLanding ? "" : "container page-wrapper"}
+        style={
+          isPreLanding
+            ? {}
+            : { paddingTop: 'calc(var(--navbar-height) + var(--space-8))' }
+        }
+      >
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
+          {/* CHANGED: root now shows PreLandingPage */}
+          <Route path="/" element={<PreLandingPage />} />
+
+          {/* ADDED: your original landing page moved here */}
+          <Route path="/home" element={<LandingPage />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
