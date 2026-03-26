@@ -9,10 +9,7 @@ public class Menu
     [Required]
     public string Name { get; set; } = string.Empty;
 
-    [Required]
-    public int EventId { get; set; }
-
-    public Event? Event { get; set; }
-
     public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
+
+    public ICollection<Event> Events { get; set; } = new List<Event>();
 }

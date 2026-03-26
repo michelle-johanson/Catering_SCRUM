@@ -1,17 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { fetchEventById } from '../api/eventService';
 import {
+  assignMenuToEvent,
   createMenu,
-  deleteMenu,
+  fetchMenus,
   fetchMenusByEvent,
+  unassignMenuFromEvent,
 } from '../api/menuService';
-import {
-  createTask,
-  deleteTask,
-  fetchTasksByEvent,
-} from '../api/taskService';
+import { createTask, deleteTask, fetchTasksByEvent } from '../api/taskService';
 import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
 import type { Task } from '../types/Task';
@@ -22,6 +21,7 @@ function EventDetailPage() {
 
   const [event, setEvent] = useState<Event | null>(null);
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [allMenus, setAllMenus] = useState<Menu[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'menus' | 'tasks'>(
@@ -32,6 +32,8 @@ function EventDetailPage() {
 
   const [newMenuName, setNewMenuName] = useState('');
   const [isAddingMenu, setIsAddingMenu] = useState(false);
+  const [existingMenuIdToAssign, setExistingMenuIdToAssign] = useState('');
+  const [isAssigningExistingMenu, setIsAssigningExistingMenu] = useState(false);
 
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskForm, setTaskForm] = useState<{
@@ -59,15 +61,19 @@ function EventDetailPage() {
       setError(null);
 
       try {
-        const [evt, m, t] = await Promise.all([
-          fetchEventById(id),
-          fetchMenusByEvent(eventId),
-          fetchTasksByEvent(eventId),
-        ]);
+        const [evt, eventMenus, availableMenus, eventTasks] = await Promise.all(
+          [
+            fetchEventById(id),
+            fetchMenusByEvent(eventId),
+            fetchMenus(),
+            fetchTasksByEvent(eventId),
+          ]
+        );
 
         setEvent(evt);
-        setMenus(m);
-        setTasks(t);
+        setMenus(eventMenus);
+        setAllMenus(availableMenus);
+        setTasks(eventTasks);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to load event.';
@@ -84,7 +90,11 @@ function EventDetailPage() {
     if (!event?.date) return '';
     const d = new Date(event.date);
     if (Number.isNaN(d.getTime())) return event.date;
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   }, [event?.date]);
 
   const statusClass = (status: Task['status']) => {
@@ -108,8 +118,12 @@ function EventDetailPage() {
     setIsAddingMenu(true);
     setError(null);
     try {
-      const created = await createMenu({ name, eventId });
-      setMenus((prev) => [created, ...prev]);
+      const created = await createMenu({ name });
+      await assignMenuToEvent(created.id, eventId);
+      const refreshedMenus = await fetchMenusByEvent(eventId);
+      const refreshedAllMenus = await fetchMenus();
+      setMenus(refreshedMenus);
+      setAllMenus(refreshedAllMenus);
       setNewMenuName('');
     } catch (err) {
       const message =
@@ -120,18 +134,50 @@ function EventDetailPage() {
     }
   };
 
-  const handleDeleteMenu = async (menu: Menu) => {
-    const ok = window.confirm(`Delete menu "${menu.name}"?`);
+  const handleUnassignMenu = async (menu: Menu) => {
+    if (!eventId) return;
+    const ok = window.confirm(`Unassign menu "${menu.name}" from this event?`);
     if (!ok) return;
 
     setError(null);
     try {
-      await deleteMenu(menu.id);
+      await unassignMenuFromEvent(menu.id, eventId);
       setMenus((prev) => prev.filter((m) => m.id !== menu.id));
+      setAllMenus((prev) =>
+        prev.map((m) =>
+          m.id === menu.id
+            ? {
+                ...m,
+                events: (m.events ?? []).filter((e) => e.id !== eventId),
+              }
+            : m
+        )
+      );
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to delete menu.';
+        err instanceof Error ? err.message : 'Failed to unassign menu.';
       setError(message);
+    }
+  };
+
+  const handleAssignExistingMenu = async () => {
+    if (!eventId || !existingMenuIdToAssign) return;
+
+    setIsAssigningExistingMenu(true);
+    setError(null);
+    try {
+      await assignMenuToEvent(Number(existingMenuIdToAssign), eventId);
+      const refreshedMenus = await fetchMenusByEvent(eventId);
+      const refreshedAllMenus = await fetchMenus();
+      setMenus(refreshedMenus);
+      setAllMenus(refreshedAllMenus);
+      setExistingMenuIdToAssign('');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to assign existing menu.';
+      setError(message);
+    } finally {
+      setIsAssigningExistingMenu(false);
     }
   };
 
@@ -153,7 +199,12 @@ function EventDetailPage() {
         eventId,
       });
       setTasks((prev) => [created, ...prev]);
-      setTaskForm({ title: '', description: '', status: 'Pending', dueDate: '' });
+      setTaskForm({
+        title: '',
+        description: '',
+        status: 'Pending',
+        dueDate: '',
+      });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to add task.';
@@ -189,7 +240,10 @@ function EventDetailPage() {
   if (error) {
     return (
       <div>
-        <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate('/events')}
+        >
           ← Back
         </button>
         <div className="alert alert-danger" role="alert">
@@ -202,7 +256,10 @@ function EventDetailPage() {
   if (!event) {
     return (
       <div>
-        <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate('/events')}
+        >
           ← Back
         </button>
         <div className="alert alert-warning" role="alert">
@@ -214,7 +271,10 @@ function EventDetailPage() {
 
   return (
     <div>
-      <button className="btn btn-secondary mb-3" onClick={() => navigate('/events')}>
+      <button
+        className="btn btn-secondary mb-3"
+        onClick={() => navigate('/events')}
+      >
         ← Back
       </button>
 
@@ -224,7 +284,9 @@ function EventDetailPage() {
             <h2 className="event-detail-title">{event.name}</h2>
             <div className="event-meta">
               <span className="event-meta-chip">Date: {formattedDate}</span>
-              <span className="event-meta-chip">Guests: {event.guestCount}</span>
+              <span className="event-meta-chip">
+                Guests: {event.guestCount}
+              </span>
               <span className="event-meta-chip">
                 Budget: ${Number(event.budget).toFixed(2)}
               </span>
@@ -316,7 +378,9 @@ function EventDetailPage() {
                 <div className="card p-3">
                   <div className="text-muted mb-1">Food Waste (lbs)</div>
                   <div>
-                    {event.foodWasteLbs != null ? Number(event.foodWasteLbs) : '—'}
+                    {event.foodWasteLbs != null
+                      ? Number(event.foodWasteLbs)
+                      : '—'}
                   </div>
                 </div>
               </div>
@@ -325,7 +389,10 @@ function EventDetailPage() {
 
           {activeTab === 'menus' && (
             <div>
-              <div className="d-flex gap-2 align-items-end mb-3" style={{ flexWrap: 'wrap' }}>
+              <div
+                className="d-flex gap-2 align-items-end mb-3"
+                style={{ flexWrap: 'wrap' }}
+              >
                 <div style={{ minWidth: '16rem' }}>
                   <label htmlFor="newMenuName">New menu name</label>
                   <input
@@ -344,6 +411,37 @@ function EventDetailPage() {
                   disabled={isAddingMenu || !newMenuName.trim()}
                 >
                   {isAddingMenu ? 'Adding...' : 'Add Menu'}
+                </button>
+                <div style={{ minWidth: '16rem' }}>
+                  <label htmlFor="existingMenu">Assign existing menu</label>
+                  <select
+                    id="existingMenu"
+                    value={existingMenuIdToAssign}
+                    onChange={(e) => setExistingMenuIdToAssign(e.target.value)}
+                    disabled={isAssigningExistingMenu}
+                  >
+                    <option value="">Choose menu</option>
+                    {allMenus
+                      .filter(
+                        (m) =>
+                          !menus.some(
+                            (assignedMenu) => assignedMenu.id === m.id
+                          )
+                      )
+                      .map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  onClick={() => void handleAssignExistingMenu()}
+                  disabled={isAssigningExistingMenu || !existingMenuIdToAssign}
+                >
+                  {isAssigningExistingMenu ? 'Assigning...' : 'Assign Existing'}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -365,16 +463,25 @@ function EventDetailPage() {
                     <details key={m.id} className="card p-3">
                       <summary className="d-flex justify-content-between align-items-center">
                         <strong>{m.name}</strong>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            void handleDeleteMenu(m);
-                          }}
-                        >
-                          Delete
-                        </button>
+                        <div className="d-flex gap-2">
+                          <Link
+                            className="btn btn-sm btn-outline-primary"
+                            to={`/menus/${m.id}/edit`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Edit Items
+                          </Link>
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              void handleUnassignMenu(m);
+                            }}
+                          >
+                            Unassign
+                          </button>
+                        </div>
                       </summary>
 
                       <div className="mt-3">
@@ -400,7 +507,10 @@ function EventDetailPage() {
                             </tbody>
                           </table>
                         ) : (
-                          <div className="text-muted" style={{ fontSize: 'var(--text-sm)' }}>
+                          <div
+                            className="text-muted"
+                            style={{ fontSize: 'var(--text-sm)' }}
+                          >
                             No menu items yet. Add items from the Menus page.
                           </div>
                         )}
@@ -423,7 +533,10 @@ function EventDetailPage() {
                       type="text"
                       value={taskForm.title}
                       onChange={(e) =>
-                        setTaskForm((prev) => ({ ...prev, title: e.target.value }))
+                        setTaskForm((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       disabled={isAddingTask}
                       placeholder="e.g. Confirm staffing"
@@ -514,16 +627,20 @@ function EventDetailPage() {
                         const dueLabel =
                           due && !Number.isNaN(due.getTime())
                             ? due.toLocaleDateString()
-                            : t.dueDate ?? '—';
+                            : (t.dueDate ?? '—');
                         return (
                           <tr
                             key={t.id}
-                            className={t.status === 'Done' ? 'task-row-done' : undefined}
+                            className={
+                              t.status === 'Done' ? 'task-row-done' : undefined
+                            }
                           >
                             <td className="task-title">{t.title}</td>
                             <td>{t.description ?? '—'}</td>
                             <td>
-                              <span className={statusClass(t.status)}>{t.status}</span>
+                              <span className={statusClass(t.status)}>
+                                {t.status}
+                              </span>
                             </td>
                             <td>{dueLabel}</td>
                             <td>
