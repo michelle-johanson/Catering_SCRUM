@@ -32,11 +32,11 @@ VALUES
 -- ============================================================
 -- Users  (BCrypt hash of "password123")
 -- ============================================================
-INSERT INTO "Users" ("Username", "Email", "PasswordHash", "Role", "CompanyId")
+INSERT INTO "Users" ("Username", "DisplayName", "Email", "PasswordHash", "Role", "CompanyId")
 VALUES
-  ('chef_anna', 'anna@goldenfork.com',   '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Admin',    1),
-  ('marcus_w',  'marcus@goldenfork.com', '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee', 1),
-  ('priya_k',   'priya@goldenfork.com',  '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee', 1);
+  ('chef_anna', 'Anna Chen',    'anna@goldenfork.com',   '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Admin',    1),
+  ('marcus_w',  'Marcus Webb',  'marcus@goldenfork.com', '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee', 1),
+  ('priya_k',   'Priya Kapoor', 'priya@goldenfork.com',  '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee', 1);
 -- chef_anna = 1, marcus_w = 2, priya_k = 3
 
 -- ============================================================

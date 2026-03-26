@@ -15,6 +15,21 @@ public class CompaniesController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("lookup")]
+    public async Task<IActionResult> LookupByJoinCode([FromQuery] string joinCode)
+    {
+        if (string.IsNullOrWhiteSpace(joinCode))
+            return BadRequest(new { message = "Join code is required." });
+
+        var company = await _context.Companies
+            .FirstOrDefaultAsync(c => c.JoinCode == joinCode.ToUpper().Trim());
+
+        if (company == null)
+            return NotFound(new { message = "No company found with that join code." });
+
+        return Ok(new { company.Id, company.Name });
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCompany(int id)
     {

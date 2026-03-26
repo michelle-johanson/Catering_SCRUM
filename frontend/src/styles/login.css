@@ -206,6 +206,163 @@
 }
 
 /* -----------------------------------------------------------
+   Multi-step wizard
+   ----------------------------------------------------------- */
+
+/* Wider card to give steps breathing room */
+.wizard-card {
+  max-width: 480px;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Step indicator row */
+.wizard-steps {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-8) var(--space-4);
+  border-bottom: var(--border);
+}
+
+.wizard-step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  opacity: 0.35;
+  transition: opacity var(--transition-fast);
+}
+
+.wizard-step-dot.active,
+.wizard-step-dot.done {
+  opacity: 1;
+}
+
+.wizard-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs, 11px);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.wizard-step-dot.active .wizard-step-num {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.wizard-step-dot.done .wizard-step-num {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+
+.wizard-step-label {
+  font-size: var(--text-xs, 11px);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+
+.wizard-step-dot.active .wizard-step-label {
+  color: var(--color-primary);
+}
+
+/* Sliding track */
+.wizard-track-container {
+  overflow: hidden;
+}
+
+.wizard-track {
+  display: flex;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.wizard-panel {
+  min-width: 100%;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.wizard-panel .auth-header {
+  margin-bottom: 0;
+}
+
+.wizard-panel .auth-form {
+  gap: var(--space-4);
+}
+
+/* Join-company confirmation card (step 2 join mode) */
+.join-confirm-card {
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.join-confirm-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--color-primary);
+}
+
+.join-confirm-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Username / field hints */
+.field-hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs, 11px);
+  color: var(--color-text-muted);
+}
+
+.username-hint {
+  font-size: var(--text-xs, 11px);
+  font-weight: var(--weight-medium);
+  margin-left: var(--space-2);
+}
+
+.username-hint.checking { color: var(--color-text-muted); }
+.username-hint.available { color: var(--color-success); }
+.username-hint.taken     { color: var(--color-danger); }
+
+/* Inline link-style button (for "use suggestion") */
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  font-size: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  text-decoration: underline;
+  width: auto;
+}
+
+.link-btn:hover {
+  color: var(--color-primary-hover);
+}
+
+/* -----------------------------------------------------------
    Responsive
    ----------------------------------------------------------- */
 @media (max-width: 480px) {

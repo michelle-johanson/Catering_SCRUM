@@ -16,6 +16,26 @@ public class AuthController : ControllerBase
         _db = db;
     }
 
+    [HttpGet("check-username")]
+    public async Task<IActionResult> CheckUsername([FromQuery] string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return BadRequest(new { message = "Username is required." });
+
+        var exists = await _db.Users.AnyAsync(u => u.Username == username);
+        if (!exists)
+            return Ok(new { available = true, suggestion = username });
+
+        for (int i = 1; i <= 99; i++)
+        {
+            var candidate = $"{username}{i}";
+            if (!await _db.Users.AnyAsync(u => u.Username == candidate))
+                return Ok(new { available = false, suggestion = candidate });
+        }
+
+        return Ok(new { available = false, suggestion = (string?)null });
+    }
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
@@ -70,6 +90,7 @@ public class AuthController : ControllerBase
         var user = new User
         {
             Username = request.Username,
+            DisplayName = string.IsNullOrWhiteSpace(request.DisplayName) ? null : request.DisplayName.Trim(),
             Email = request.Email,
             PasswordHash = passwordHash,
             Role = role,
@@ -88,6 +109,7 @@ public class AuthController : ControllerBase
         {
             user.Id,
             user.Username,
+            user.DisplayName,
             user.Email,
             user.Role,
             user.CompanyId,
@@ -123,6 +145,7 @@ public class AuthController : ControllerBase
         {
             user.Id,
             user.Username,
+            user.DisplayName,
             user.Email,
             user.Role,
             user.CompanyId,
