@@ -645,7 +645,7 @@ function EventDetailPage() {
                             <td>{dueLabel}</td>
                             <td>
                               <button
-                                className="btn btn-sm btn-danger"
+                                className="btn btn-sm btn-secondary"
                                 type="button"
                                 onClick={() => void handleDeleteTask(t)}
                               >
