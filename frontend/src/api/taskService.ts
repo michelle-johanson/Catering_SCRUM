@@ -1,20 +1,44 @@
-// TODO: taskService — API calls for Task CRUD
-//
-// All functions follow the same pattern as eventService.ts:
-// - Use withAuthHeaders() for all requests
-// - Throw on non-ok responses (don't swallow errors except in fetchTasks which returns [])
-// - Use API_BASE_URL from import.meta.env.VITE_API_URL ?? '/api'
-//
-// Backend endpoints (TasksController):
-//   GET    /api/tasks                    → fetchTasks(): Promise<Task[]>
-//   GET    /api/tasks/byevent/:eventId   → fetchTasksByEvent(eventId): Promise<Task[]>
-//   POST   /api/tasks                    → createTask(data): Promise<Task>
-//   PUT    /api/tasks/:id                → updateTask(id, data): Promise<void>
-//   DELETE /api/tasks/:id                → deleteTask(id): Promise<void>
-//
-// CreateTaskRequest shape:
-//   { title: string; description?: string; status: string; dueDate?: string; eventId: number }
-//
-// Imports needed:
-// import type { Task } from '../types/Task';
-// import { withAuthHeaders } from './loginService';
+import { withAuthHeaders, getAuthCompanyId } from './loginService';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+
+export const fetchTasks = async () => {
+  const companyId = getAuthCompanyId();
+  const url = companyId ? `${API_BASE_URL}/Tasks?companyId=${companyId}` : `${API_BASE_URL}/Tasks`;
+  const response = await fetch(url, { headers: withAuthHeaders() });
+  if (!response.ok) throw new Error('Failed to fetch tasks');
+  return response.json();
+};
+
+export const fetchTasksByEvent = async (eventId: number) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/byevent/${eventId}`, { headers: withAuthHeaders() });
+  if (!response.ok) throw new Error('Failed to fetch tasks for event');
+  return response.json();
+};
+
+export const createTask = async (taskData: any) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks`, {
+    method: 'POST',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(taskData)
+  });
+  if (!response.ok) throw new Error('Failed to create task');
+  return response.json();
+};
+
+export const updateTask = async (id: number, taskData: any) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/${id}`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(taskData)
+  });
+  if (!response.ok) throw new Error('Failed to update task');
+};
+
+export const deleteTask = async (id: number) => {
+  const response = await fetch(`${API_BASE_URL}/Tasks/${id}`, {
+    method: 'DELETE',
+    headers: withAuthHeaders()
+  });
+  if (!response.ok) throw new Error('Failed to delete task');
+};

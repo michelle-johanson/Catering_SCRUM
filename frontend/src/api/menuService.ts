@@ -1,31 +1,187 @@
-// TODO: menuService — API calls for Menu and MenuItem CRUD
-//
-// All functions follow the same pattern as eventService.ts:
-// - Use withAuthHeaders() for all requests
-// - Throw on non-ok responses (fetchMenus returns [] on failure)
-// - Use API_BASE_URL from import.meta.env.VITE_API_URL ?? '/api'
-//
-// Backend endpoints (MenusController + MenuItemsController):
-//
-//   Menus:
-//   GET    /api/menus                    → fetchMenus(): Promise<Menu[]>
-//   GET    /api/menus/byevent/:eventId   → fetchMenusByEvent(eventId): Promise<Menu[]>
-//   POST   /api/menus                    → createMenu(data): Promise<Menu>
-//   PUT    /api/menus/:id                → updateMenu(id, data): Promise<void>
-//   DELETE /api/menus/:id                → deleteMenu(id): Promise<void>
-//
-//   MenuItems:
-//   POST   /api/menuitems                → createMenuItem(data): Promise<MenuItem>
-//   PUT    /api/menuitems/:id            → updateMenuItem(id, data): Promise<void>
-//   DELETE /api/menuitems/:id            → deleteMenuItem(id): Promise<void>
-//
-// CreateMenuRequest shape:
-//   { name: string; eventId: number }
-//
-// CreateMenuItemRequest shape:
-//   { name: string; category: string; quantityOrdered: number; quantityWasted: number; menuId: number }
-//
-// Imports needed:
-// import type { Menu } from '../types/Menu';
-// import type { MenuItem } from '../types/MenuItem';
-// import { withAuthHeaders } from './loginService';
+import type { Menu } from '../types/Menu';
+import type { MenuItem } from '../types/MenuItem';
+import { withAuthHeaders, getAuthCompanyId } from './loginService';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+
+export interface CreateMenuRequest {
+  name: string;
+}
+
+export interface UpdateMenuRequest {
+  id: number;
+  name: string;
+}
+
+export interface CreateMenuItemRequest {
+  name: string;
+  category: string;
+  quantityOrdered: number;
+  quantityWasted: number;
+  menuId: number;
+}
+
+export interface UpdateMenuItemRequest extends CreateMenuItemRequest {
+  id: number;
+}
+
+export const fetchMenus = async (): Promise<Menu[]> => {
+  try {
+    const companyId = getAuthCompanyId();
+    const url = companyId ? `${API_BASE_URL}/menus?companyId=${companyId}` : `${API_BASE_URL}/menus`;
+    const response = await fetch(url, {
+      headers: withAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return (await response.json()) as Menu[];
+  } catch (error) {
+    console.error('Failed to fetch menus:', error);
+    return [];
+  }
+};
+
+export const fetchMenusByEvent = async (
+  eventId: number | string
+): Promise<Menu[]> => {
+  const response = await fetch(`${API_BASE_URL}/menus/byevent/${eventId}`, {
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Menu[];
+};
+
+export const fetchMenuById = async (id: number | string): Promise<Menu> => {
+  const response = await fetch(`${API_BASE_URL}/menus/${id}`, {
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Menu;
+};
+
+export const createMenu = async (data: CreateMenuRequest): Promise<Menu> => {
+  const response = await fetch(`${API_BASE_URL}/menus`, {
+    method: 'POST',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as Menu;
+};
+
+export const updateMenu = async (
+  id: number | string,
+  data: UpdateMenuRequest
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/menus/${id}`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const deleteMenu = async (id: number | string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/menus/${id}`, {
+    method: 'DELETE',
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const assignMenuToEvent = async (
+  menuId: number | string,
+  eventId: number | string
+): Promise<void> => {
+  const response = await fetch(
+    `${API_BASE_URL}/menus/${menuId}/events/${eventId}`,
+    {
+      method: 'POST',
+      headers: withAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const unassignMenuFromEvent = async (
+  menuId: number | string,
+  eventId: number | string
+): Promise<void> => {
+  const response = await fetch(
+    `${API_BASE_URL}/menus/${menuId}/events/${eventId}`,
+    {
+      method: 'DELETE',
+      headers: withAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const createMenuItem = async (
+  data: CreateMenuItemRequest
+): Promise<MenuItem> => {
+  const response = await fetch(`${API_BASE_URL}/menuitems`, {
+    method: 'POST',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return (await response.json()) as MenuItem;
+};
+
+export const updateMenuItem = async (
+  id: number | string,
+  data: UpdateMenuItemRequest
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/menuitems/${id}`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const deleteMenuItem = async (id: number | string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/menuitems/${id}`, {
+    method: 'DELETE',
+    headers: withAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};

@@ -22,18 +22,25 @@ namespace CateringAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Events
+        // GET: api/Events?companyId=1
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents([FromQuery] int? companyId)
         {
-            return await _context.Events.ToListAsync();
+            var query = _context.Events.AsQueryable();
+            if (companyId.HasValue)
+                query = query.Where(e => e.CompanyId == companyId.Value);
+            return await query.ToListAsync();
         }
 
         // GET: api/Events/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
-            var targetEvent = await _context.Events.FindAsync(id);
+            var targetEvent = await _context.Events
+                .Include(e => e.Menus)
+                    .ThenInclude(m => m.MenuItems)
+                .Include(e => e.Tasks)
+                .FirstOrDefaultAsync(e => e.Id == id);
 
             if (targetEvent == null)
             {

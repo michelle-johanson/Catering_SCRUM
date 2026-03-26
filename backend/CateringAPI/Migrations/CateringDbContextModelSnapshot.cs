@@ -22,6 +22,64 @@ namespace CateringAPI.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CateringAPI.Models.CateringTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("CateringAPI.Models.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("JoinCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies");
+                });
+
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -33,11 +91,17 @@ namespace CateringAPI.Migrations
                     b.Property<decimal>("Budget")
                         .HasColumnType("numeric");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("FoodWasteLbs")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("GuestCount")
                         .HasColumnType("integer");
@@ -46,7 +110,15 @@ namespace CateringAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal?>("TotalCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal?>("TotalSales")
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("CreatedByUserId");
 
@@ -61,16 +133,11 @@ namespace CateringAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EventId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EventId");
 
                     b.ToTable("Menus");
                 });
@@ -115,6 +182,12 @@ namespace CateringAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -133,29 +206,60 @@ namespace CateringAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("EventMenu", b =>
+                {
+                    b.Property<int>("EventsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MenusId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EventsId", "MenusId");
+
+                    b.HasIndex("MenusId");
+
+                    b.ToTable("EventMenus", (string)null);
+                });
+
+            modelBuilder.Entity("CateringAPI.Models.CateringTask", b =>
+                {
+                    b.HasOne("CateringAPI.Models.Company", "Company")
+                        .WithMany("Tasks")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CateringAPI.Models.Event", "Event")
+                        .WithMany("Tasks")
+                        .HasForeignKey("EventId");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
                 {
+                    b.HasOne("CateringAPI.Models.Company", "Company")
+                        .WithMany("Events")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CateringAPI.Models.User", "CreatedByUser")
                         .WithMany("Events")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("CateringAPI.Models.Menu", b =>
-                {
-                    b.HasOne("CateringAPI.Models.Event", "Event")
-                        .WithMany("Menus")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("CateringAPI.Models.MenuItem", b =>
@@ -169,9 +273,44 @@ namespace CateringAPI.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("EventMenu", b =>
+                {
+                    b.HasOne("CateringAPI.Models.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CateringAPI.Models.Menu", null)
+                        .WithMany()
+                        .HasForeignKey("MenusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CateringAPI.Models.User", b =>
+                {
+                    b.HasOne("CateringAPI.Models.Company", "Company")
+                        .WithMany("Users")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("CateringAPI.Models.Company", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Tasks");
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("CateringAPI.Models.Event", b =>
                 {
-                    b.Navigation("Menus");
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("CateringAPI.Models.Menu", b =>

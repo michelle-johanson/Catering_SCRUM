@@ -11,6 +11,7 @@ export interface Task {
   description?: string;
   status: 'Pending' | 'InProgress' | 'Done';
   dueDate?: string; // ISO 8601 string from backend DateTime?
-  eventId: number;
+  companyId: number;
+  eventId: number | null;
   event?: Event;
 }

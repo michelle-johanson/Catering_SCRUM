@@ -1,5 +1,5 @@
 import type { Event } from '../types/Event';
-import { withAuthHeaders } from './loginService';
+import { withAuthHeaders, getAuthCompanyId } from './loginService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -8,14 +8,18 @@ export interface CreateEventRequest {
   date: string;
   guestCount: number;
   budget: number;
+  foodWasteLbs?: number;
+  totalCost?: number;
+  totalSales?: number;
   createdByUserId: number;
+  companyId: number;
 }
 
 export const fetchEvents = async (): Promise<Event[]> => {
   try {
-    // 1. Call the backend
-    // This assumes your .NET controller route for events is /api/events
-    const response = await fetch(`${API_BASE_URL}/events`, {
+    const companyId = getAuthCompanyId();
+    const url = companyId ? `${API_BASE_URL}/events?companyId=${companyId}` : `${API_BASE_URL}/events`;
+    const response = await fetch(url, {
       headers: withAuthHeaders(),
     });
 
@@ -76,7 +80,11 @@ export interface UpdateEventRequest {
   date: string;
   guestCount: number;
   budget: number;
+  foodWasteLbs?: number;
+  totalCost?: number;
+  totalSales?: number;
   createdByUserId: number;
+  companyId: number;
 }
 
 export const updateEvent = async (

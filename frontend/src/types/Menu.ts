@@ -4,7 +4,6 @@ import type { MenuItem } from './MenuItem'; // We will create this one next!
 export type Menu = {
   id: number;
   name: string;
-  eventId: number;
-  event?: Event; 
+  events?: Event[];
   menuItems: MenuItem[];
 };

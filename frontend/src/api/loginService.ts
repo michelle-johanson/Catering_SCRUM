@@ -8,20 +8,29 @@ interface LoginRequest {
 interface LoginResponse {
   id: number;
   username: string;
+  displayName?: string;
   email: string;
   role: string;
+  companyId: number;
+  companyName?: string;
   token?: string;
 }
 
 interface AuthSession {
   token?: string;
   username?: string;
+  displayName?: string;
   userId?: number;
+  companyId?: number;
+  companyName?: string;
 }
 
 const AUTH_TOKEN_KEY = 'authToken';
 const AUTH_USERNAME_KEY = 'authUsername';
+const AUTH_DISPLAY_NAME_KEY = 'authDisplayName';
 const AUTH_USER_ID_KEY = 'authUserId';
+const AUTH_COMPANY_ID_KEY = 'authCompanyId';
+const AUTH_COMPANY_NAME_KEY = 'authCompanyName';
 
 /**
  * Authenticates a user with the provided credentials
@@ -60,7 +69,7 @@ export const loginUser = async (
   }
 };
 
-export const storeAuthSession = ({ token, username, userId }: AuthSession): void => {
+export const storeAuthSession = ({ token, username, displayName, userId, companyId, companyName }: AuthSession): void => {
   if (token) {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   } else {
@@ -73,10 +82,28 @@ export const storeAuthSession = ({ token, username, userId }: AuthSession): void
     localStorage.removeItem(AUTH_USERNAME_KEY);
   }
 
+  if (displayName) {
+    localStorage.setItem(AUTH_DISPLAY_NAME_KEY, displayName);
+  } else {
+    localStorage.removeItem(AUTH_DISPLAY_NAME_KEY);
+  }
+
   if (typeof userId === 'number') {
     localStorage.setItem(AUTH_USER_ID_KEY, String(userId));
   } else {
     localStorage.removeItem(AUTH_USER_ID_KEY);
+  }
+
+  if (typeof companyId === 'number') {
+    localStorage.setItem(AUTH_COMPANY_ID_KEY, String(companyId));
+  } else {
+    localStorage.removeItem(AUTH_COMPANY_ID_KEY);
+  }
+
+  if (companyName) {
+    localStorage.setItem(AUTH_COMPANY_NAME_KEY, companyName);
+  } else {
+    localStorage.removeItem(AUTH_COMPANY_NAME_KEY);
   }
 };
 
@@ -86,7 +113,25 @@ export const storeAuthSession = ({ token, username, userId }: AuthSession): void
 export const logoutUser = (): void => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USERNAME_KEY);
+  localStorage.removeItem(AUTH_DISPLAY_NAME_KEY);
   localStorage.removeItem(AUTH_USER_ID_KEY);
+  localStorage.removeItem(AUTH_COMPANY_ID_KEY);
+  localStorage.removeItem(AUTH_COMPANY_NAME_KEY);
+};
+
+export const getAuthDisplayName = (): string | null => {
+  return localStorage.getItem(AUTH_DISPLAY_NAME_KEY);
+};
+
+export const getAuthCompanyName = (): string | null => {
+  return localStorage.getItem(AUTH_COMPANY_NAME_KEY);
+};
+
+export const getAuthCompanyId = (): number | null => {
+  const value = localStorage.getItem(AUTH_COMPANY_ID_KEY);
+  if (value === null) return null;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
 };
 
 /**
