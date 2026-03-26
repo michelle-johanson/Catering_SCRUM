@@ -40,31 +40,20 @@ namespace CateringAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, User incoming)
         {
-            if (id != user.Id)
-            {
+            if (id != incoming.Id)
                 return BadRequest();
-            }
 
-            _context.Entry(user).State = EntityState.Modified;
+            var existing = await _context.Users.FindAsync(id);
+            if (existing == null)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            existing.Username = incoming.Username;
+            existing.DisplayName = incoming.DisplayName;
+            existing.Email = incoming.Email;
 
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -77,18 +66,52 @@ namespace CateringAPI.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
+        [HttpGet("{id}/delete-info")]
+        public async Task<IActionResult> GetDeleteInfo(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null) return NotFound();
+
+            var companyUserCount = await _context.Users
+                .CountAsync(u => u.CompanyId == user.CompanyId);
+            var otherAdminCount = await _context.Users
+                .CountAsync(u => u.CompanyId == user.CompanyId && u.Id != id && u.Role == "Admin");
+
+            var canDelete = !(user.Role == "Admin" && otherAdminCount == 0 && companyUserCount > 1);
+            var blockReason = canDelete ? null
+                : "You are the only admin. Promote another team member to admin before deleting your account.";
+            var companyWillBeDeleted = companyUserCount == 1;
+
+            return Ok(new { canDelete, blockReason, companyWillBeDeleted, companyName = user.Company?.Name });
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            var user = await _context.Users
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            _context.Users.Remove(user);
+            if (user == null) return NotFound();
+
+            var companyUserCount = await _context.Users
+                .CountAsync(u => u.CompanyId == user.CompanyId);
+            var otherAdminCount = await _context.Users
+                .CountAsync(u => u.CompanyId == user.CompanyId && u.Id != id && u.Role == "Admin");
+
+            if (user.Role == "Admin" && otherAdminCount == 0 && companyUserCount > 1)
+                return BadRequest(new { message = "You are the only admin. Promote another team member before deleting your account." });
+
+            // Last user at company — remove the company (cascades to all company data)
+            if (companyUserCount == 1 && user.Company != null)
+                _context.Companies.Remove(user.Company);
+            else
+                _context.Users.Remove(user);
+
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 

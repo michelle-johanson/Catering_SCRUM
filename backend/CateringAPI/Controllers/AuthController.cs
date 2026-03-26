@@ -34,6 +34,37 @@ public class AuthController : ControllerBase
             return Conflict(new { message = "User with this email or username already exists." });
         }
 
+        int companyId;
+        string role;
+
+        if (!string.IsNullOrWhiteSpace(request.CompanyName))
+        {
+            var company = new Company
+            {
+                Name = request.CompanyName,
+                JoinCode = GenerateJoinCode()
+            };
+            _db.Companies.Add(company);
+            await _db.SaveChangesAsync();
+            companyId = company.Id;
+            role = "Admin";
+        }
+        else if (!string.IsNullOrWhiteSpace(request.JoinCode))
+        {
+            var company = await _db.Companies
+                .FirstOrDefaultAsync(c => c.JoinCode == request.JoinCode);
+
+            if (company == null)
+                return BadRequest(new { message = "Invalid join code." });
+
+            companyId = company.Id;
+            role = "Employee";
+        }
+        else
+        {
+            return BadRequest(new { message = "Provide a company name to create a new company, or a join code to join an existing one." });
+        }
+
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var user = new User
@@ -41,7 +72,8 @@ public class AuthController : ControllerBase
             Username = request.Username,
             Email = request.Email,
             PasswordHash = passwordHash,
-            Role = "Employee"
+            Role = role,
+            CompanyId = companyId
         };
 
         _db.Users.Add(user);
@@ -52,8 +84,16 @@ public class AuthController : ControllerBase
             user.Id,
             user.Username,
             user.Email,
-            user.Role
+            user.Role,
+            user.CompanyId
         });
+    }
+
+    private static string GenerateJoinCode()
+    {
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var random = new Random();
+        return new string(Enumerable.Range(0, 8).Select(_ => chars[random.Next(chars.Length)]).ToArray());
     }
 
     [HttpPost("login")]
@@ -77,7 +117,8 @@ public class AuthController : ControllerBase
             user.Id,
             user.Username,
             user.Email,
-            user.Role
+            user.Role,
+            user.CompanyId
         });
     }
 }

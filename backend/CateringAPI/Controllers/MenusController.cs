@@ -31,13 +31,17 @@ namespace CateringAPI.Controllers
             _context = context;
         }
 
+        // GET: api/Menus?companyId=1
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Menu>>> GetMenus()
+        public async Task<ActionResult<IEnumerable<Menu>>> GetMenus([FromQuery] int? companyId)
         {
-            return await _context.Menus
+            var query = _context.Menus
                 .Include(m => m.MenuItems)
                 .Include(m => m.Events)
-                .ToListAsync();
+                .AsQueryable();
+            if (companyId.HasValue)
+                query = query.Where(m => m.Events.Any(e => e.CompanyId == companyId.Value));
+            return await query.ToListAsync();
         }
 
         [HttpGet("byevent/{eventId}")]

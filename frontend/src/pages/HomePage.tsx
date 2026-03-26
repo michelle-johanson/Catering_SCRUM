@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchEvents } from '../api/eventService';
 import { fetchTasks } from '../api/taskService';
-import { getAuthUsername } from '../api/loginService';
+import { getAuthUsername, getAuthDisplayName } from '../api/loginService';
 import type { Event } from '../types/Event';
 import type { Task } from '../types/Task';
 import '../styles/dashboard.css';
@@ -41,7 +41,7 @@ function HomePage() {
   }
 
   const now = new Date();
-  const username = getAuthUsername() ?? 'there';
+  const username = getAuthDisplayName() ?? getAuthUsername() ?? 'there';
 
   // --- Upcoming events (future, sorted soonest first) ---
   const upcomingEvents = [...events]

@@ -3,34 +3,42 @@
 -- Login credentials: admin / password123, jsmith / password123
 
 -- ============================================================
+-- Companies
+-- ============================================================
+INSERT INTO "Companies" ("Name")
+VALUES
+  ('Default Company')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================
 -- Users (BCrypt hash of "password123")
 -- ============================================================
-INSERT INTO "Users" ("Username", "Email", "PasswordHash", "Role")
+INSERT INTO "Users" ("Username", "Email", "PasswordHash", "Role", "CompanyId")
 VALUES
-  ('admin',  'admin@catering.local',  '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Admin'),
-  ('jsmith', 'jsmith@catering.local', '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee')
+  ('admin',  'admin@catering.local',  '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Admin',    1),
+  ('jsmith', 'jsmith@catering.local', '$2b$10$ihY8jkI1JEeJjvKX/m7Vu.I4Pcd97wSpKNUIe5Op.1wq251B16dk6', 'Employee', 1)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- Events — mix of past (with financials) and upcoming
 -- ============================================================
-INSERT INTO "Events" ("Name", "Date", "GuestCount", "Budget", "FoodWasteLbs", "TotalCost", "TotalSales", "CreatedByUserId")
+INSERT INTO "Events" ("Name", "Date", "GuestCount", "Budget", "FoodWasteLbs", "TotalCost", "TotalSales", "CreatedByUserId", "CompanyId")
 VALUES
   -- Past events with full financial data (good for dashboard charts)
-  ('Johnson Wedding Reception',  '2025-09-15T18:00:00Z', 150, 8500.00,  12.3, 6200.00,  9500.00,  1),
-  ('Tech Corp Annual Gala',      '2025-10-20T19:00:00Z', 200, 12000.00, 18.7, 9800.00,  14500.00, 1),
-  ('City Food Festival Booth',   '2025-11-05T10:00:00Z', 300, 5000.00,  25.0, 4200.00,  7800.00,  1),
-  ('Miller 50th Anniversary',    '2025-12-01T17:00:00Z', 80,  4000.00,  5.2,  3100.00,  4800.00,  2),
-  ('Holiday Corporate Luncheon', '2025-12-18T11:30:00Z', 120, 6000.00,  9.8,  5500.00,  7200.00,  1),
-  ('New Year Charity Dinner',    '2026-01-10T19:00:00Z', 175, 9000.00,  14.1, 7600.00,  10200.00, 2),
-  ('Valentines Day Banquet',     '2026-02-14T18:30:00Z', 90,  5500.00,  7.5,  4100.00,  6300.00,  1),
-  ('Spring Garden Party',        '2026-03-08T14:00:00Z', 110, 4500.00,  8.9,  3800.00,  5400.00,  2),
+  ('Johnson Wedding Reception',  '2025-09-15T18:00:00Z', 150, 8500.00,  12.3, 6200.00,  9500.00,  1, 1),
+  ('Tech Corp Annual Gala',      '2025-10-20T19:00:00Z', 200, 12000.00, 18.7, 9800.00,  14500.00, 1, 1),
+  ('City Food Festival Booth',   '2025-11-05T10:00:00Z', 300, 5000.00,  25.0, 4200.00,  7800.00,  1, 1),
+  ('Miller 50th Anniversary',    '2025-12-01T17:00:00Z', 80,  4000.00,  5.2,  3100.00,  4800.00,  2, 1),
+  ('Holiday Corporate Luncheon', '2025-12-18T11:30:00Z', 120, 6000.00,  9.8,  5500.00,  7200.00,  1, 1),
+  ('New Year Charity Dinner',    '2026-01-10T19:00:00Z', 175, 9000.00,  14.1, 7600.00,  10200.00, 2, 1),
+  ('Valentines Day Banquet',     '2026-02-14T18:30:00Z', 90,  5500.00,  7.5,  4100.00,  6300.00,  1, 1),
+  ('Spring Garden Party',        '2026-03-08T14:00:00Z', 110, 4500.00,  8.9,  3800.00,  5400.00,  2, 1),
   -- Recent event with high waste (outlier for correlation chart)
-  ('Campus Welcome BBQ',         '2026-03-15T12:00:00Z', 250, 3500.00,  32.0, 3200.00,  4000.00,  1),
+  ('Campus Welcome BBQ',         '2026-03-15T12:00:00Z', 250, 3500.00,  32.0, 3200.00,  4000.00,  1, 1),
   -- Upcoming events (no financials yet)
-  ('Martinez Quinceañera',      '2026-04-05T16:00:00Z', 100, 6000.00,  NULL, NULL,      NULL,     2),
-  ('Startup Demo Day Lunch',     '2026-04-12T11:00:00Z', 60,  2500.00,  NULL, NULL,      NULL,     1),
-  ('Summer Solstice Feast',      '2026-06-21T18:00:00Z', 180, 10000.00, NULL, NULL,      NULL,     1)
+  ('Martinez Quinceañera',      '2026-04-05T16:00:00Z', 100, 6000.00,  NULL, NULL,      NULL,     2, 1),
+  ('Startup Demo Day Lunch',     '2026-04-12T11:00:00Z', 60,  2500.00,  NULL, NULL,      NULL,     1, 1),
+  ('Summer Solstice Feast',      '2026-06-21T18:00:00Z', 180, 10000.00, NULL, NULL,      NULL,     1, 1)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================

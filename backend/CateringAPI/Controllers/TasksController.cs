@@ -19,11 +19,14 @@ namespace CateringAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Tasks
+        // GET: api/Tasks?companyId=1
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CateringTask>>> GetTasks()
+        public async Task<ActionResult<IEnumerable<CateringTask>>> GetTasks([FromQuery] int? companyId)
         {
-            return await _context.Tasks.ToListAsync();
+            var query = _context.Tasks.AsQueryable();
+            if (companyId.HasValue)
+                query = query.Where(t => t.CompanyId == companyId.Value);
+            return await query.ToListAsync();
         }
 
         // GET: api/Tasks/byevent/5

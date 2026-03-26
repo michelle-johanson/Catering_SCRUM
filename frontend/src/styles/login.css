@@ -65,6 +65,47 @@
 }
 
 /* -----------------------------------------------------------
+   Mode toggle (Register page)
+   ----------------------------------------------------------- */
+.auth-toggle {
+  display: flex;
+  background: var(--color-bg);
+  border: var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+  margin-bottom: var(--space-6);
+  gap: var(--space-1);
+}
+
+.auth-toggle-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  /* Override base button styles */
+  width: auto;
+}
+
+.auth-toggle-btn:hover:not(.active) {
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+.auth-toggle-btn.active {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* -----------------------------------------------------------
    Form
    ----------------------------------------------------------- */
 .auth-form {

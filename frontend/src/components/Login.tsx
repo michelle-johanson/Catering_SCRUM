@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, storeAuthSession } from '../api/loginService';
 
 interface LoginFormData {
@@ -22,6 +22,8 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/dashboard';
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -63,9 +65,9 @@ function Login() {
         token: response.token,
         username: response.username ?? formData.username,
         userId: response.id,
+        companyId: response.companyId,
       });
-      console.log('Login successful:', response);
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Login failed. Please try again.';

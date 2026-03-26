@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createEvent, fetchEventById, updateEvent } from '../api/eventService';
-import { getAuthUserId } from '../api/loginService';
+import { getAuthUserId, getAuthCompanyId } from '../api/loginService';
 
 interface EventFormData {
   name: string;
@@ -131,9 +131,10 @@ function EventFormPage() {
     if (!validateForm()) return;
 
     const userId = getAuthUserId();
-    if (userId === null) {
+    const companyId = getAuthCompanyId();
+    if (userId === null || companyId === null) {
       setErrors({
-        submit: 'Your session is missing a user ID. Please sign in again.',
+        submit: 'Your session is missing required info. Please sign in again.',
       });
       return;
     }
@@ -162,6 +163,7 @@ function EventFormPage() {
           budget: Number(formData.budget),
           ...optionalFields,
           createdByUserId: userId,
+          companyId,
         });
         navigate(`/events/${id}`);
       } else {
@@ -172,6 +174,7 @@ function EventFormPage() {
           budget: Number(formData.budget),
           ...optionalFields,
           createdByUserId: userId,
+          companyId,
         });
         navigate('/events');
       }

@@ -69,6 +69,9 @@ function Navbar() {
               <NavLink className={navLinkClass} to="/analytics">
                 Analytics
               </NavLink>
+              <NavLink className={navLinkClass} to="/staff">
+                Staff
+              </NavLink>
               <button
                 className="btn btn-sm nav-logout-btn ms-2"
                 onClick={handleLogout}
