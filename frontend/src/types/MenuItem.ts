@@ -4,8 +4,9 @@ export type MenuItem = {
   id: number;
   name: string;
   category: string;
-  quantityOrdered: number;
-  quantityWasted: number;
+  cost: number;
+  servingSizeLb: number;
+  recommendedPer100Guests: number; // CHANGED
   menuId: number;
   menu?: Menu;
 };

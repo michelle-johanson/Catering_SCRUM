@@ -1,354 +1,217 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  assignMenuToEvent,
-  createMenu,
-  deleteMenu,
-  fetchMenus,
-  unassignMenuFromEvent,
-} from '../api/menuService';
+import { fetchMenus, createMenu, deleteMenu } from '../api/menuService';
 import { fetchEvents } from '../api/eventService';
-import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
+import type { Event } from '../types/Event';
 
 function MenuPage() {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newMenuName, setNewMenuName] = useState('');
-  const [newMenuEventId, setNewMenuEventId] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Filtering and form state mirroring the Tasks page
+  const [selectedEventId, setSelectedEventId] = useState<string>('all');
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({ name: '' });
 
-  const [assignTargets, setAssignTargets] = useState<Record<number, string>>(
-    {}
-  );
-  const [busyMenuId, setBusyMenuId] = useState<number | null>(null);
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = async () => {
+    setLoading(true);
     setError(null);
     try {
-      const [menuData, eventData] = await Promise.all([
+      const [menusData, eventsData] = await Promise.all([
         fetchMenus(),
         fetchEvents(),
       ]);
-      setMenus(menuData);
-      setEvents(eventData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load menus.');
+      setMenus(menusData);
+      setEvents(eventsData);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load data');
     } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
-
-  const menusByEvent = useMemo(() => {
-    return events
-      .map((event) => ({
-        event,
-        menus: menus.filter((menu) =>
-          menu.events?.some((e) => e.id === event.id)
-        ),
-      }))
-      .filter((group) => group.menus.length > 0);
-  }, [events, menus]);
-
-  const unassignedMenus = useMemo(
-    () => menus.filter((menu) => !menu.events || menu.events.length === 0),
-    [menus]
-  );
-
-  const handleCreateMenu = async () => {
-    const name = newMenuName.trim();
-    if (!name) return;
-
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const created = await createMenu({ name });
-      if (newMenuEventId) {
-        await assignMenuToEvent(created.id, Number(newMenuEventId));
-      }
-
-      setNewMenuName('');
-      setNewMenuEventId('');
-      setIsCreateOpen(false);
-      await loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create menu.');
-    } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  const handleDeleteMenu = async (menu: Menu) => {
-    const confirmed = window.confirm(
-      `Delete menu "${menu.name}"? This also deletes all items on the menu.`
-    );
-    if (!confirmed) return;
+  const handleOpenForm = () => {
+    setFormData({ name: '' });
+    setShowForm(true);
+  };
 
-    setBusyMenuId(menu.id);
-    setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+
+    try {
+      // Create menu as a standalone entity, no event assignment!
+      await createMenu({ name: formData.name.trim() });
+      setShowForm(false);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to create menu');
+    }
+  };
+
+  const handleDelete = async (menu: Menu) => {
+    if (
+      !confirm(`Delete menu "${menu.name}"? This will also delete its items.`)
+    )
+      return;
     try {
       await deleteMenu(menu.id);
-      setMenus((prev) => prev.filter((m) => m.id !== menu.id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete menu.');
-    } finally {
-      setBusyMenuId(null);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete menu');
     }
   };
 
-  const handleUnassign = async (menuId: number, eventId: number) => {
-    setBusyMenuId(menuId);
-    setError(null);
-    try {
-      await unassignMenuFromEvent(menuId, eventId);
-      await loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to unassign menu.');
-    } finally {
-      setBusyMenuId(null);
-    }
-  };
+  const filteredMenus =
+    selectedEventId === 'all'
+      ? menus
+      : selectedEventId === 'unassigned'
+        ? menus.filter((m) => !m.events || m.events.length === 0)
+        : menus.filter((m) =>
+            m.events?.some((e) => e.id === Number(selectedEventId))
+          );
 
-  const handleAssign = async (menuId: number) => {
-    const selectedEventId = assignTargets[menuId];
-    if (!selectedEventId) return;
-
-    setBusyMenuId(menuId);
-    setError(null);
-    try {
-      await assignMenuToEvent(menuId, Number(selectedEventId));
-      setAssignTargets((prev) => ({ ...prev, [menuId]: '' }));
-      await loadData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign menu.');
-    } finally {
-      setBusyMenuId(null);
-    }
-  };
-
-  if (isLoading) {
-    return <div className="alert alert-info">Loading menus...</div>;
-  }
+  if (loading) return <div className="alert alert-info">Loading menus...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
     <div className="page-container">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
-        <h2 className="section-title" style={{ marginBottom: 0 }}>Menus</h2>
-        <button
-          className="btn btn-primary btn-sm"
-          type="button"
-          onClick={() => setIsCreateOpen((prev) => !prev)}
-        >
-          {isCreateOpen ? 'Cancel' : '+ Create Menu'}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-4)',
+        }}
+      >
+        <h2 className="section-title" style={{ marginBottom: 0 }}>
+          Menus
+        </h2>
+        <button className="btn btn-primary btn-sm" onClick={handleOpenForm}>
+          + Add Menu
         </button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="mb-4 d-flex align-items-center">
+        <label className="me-2 fw-bold">Filter by Event:</label>
+        <select
+          className="form-select w-auto"
+          value={selectedEventId}
+          onChange={(e) => setSelectedEventId(e.target.value)}
+        >
+          <option value="all">All Menus</option>
+          <option value="unassigned">Unassigned</option>
+          {events.map((ev) => (
+            <option key={ev.id} value={ev.id}>
+              {ev.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {isCreateOpen && (
-        <div className="card p-3 mb-4">
-          <div className="row" style={{ rowGap: 'var(--space-3)' }}>
-            <div className="col-12 col-md-6">
-              <label htmlFor="newMenuName">Menu Name</label>
-              <input
-                id="newMenuName"
-                type="text"
-                value={newMenuName}
-                onChange={(e) => setNewMenuName(e.target.value)}
-                placeholder="e.g. Spring Buffet"
-                disabled={isSubmitting}
-              />
+      {showForm && (
+        <div className="card mb-4 p-3 shadow-sm border-0">
+          <h5>New Menu</h5>
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Menu Name *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ name: e.target.value })}
+                  placeholder="e.g. Standard Wedding Buffet"
+                  required
+                />
+              </div>
             </div>
-            <div className="col-12 col-md-4">
-              <label htmlFor="newMenuEvent">Assign to Event (optional)</label>
-              <select
-                id="newMenuEvent"
-                value={newMenuEventId}
-                onChange={(e) => setNewMenuEventId(e.target.value)}
-                disabled={isSubmitting}
-              >
-                <option value="">Unassigned for now</option>
-                {events.map((event) => (
-                  <option key={event.id} value={event.id}>
-                    {event.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-12 col-md-2 d-flex align-items-end">
+            <div className="mt-3">
+              <button type="submit" className="btn btn-success me-2">
+                Create
+              </button>
               <button
-                className="btn btn-primary w-100"
                 type="button"
-                onClick={() => void handleCreateMenu()}
-                disabled={isSubmitting || !newMenuName.trim()}
+                className="btn btn-secondary"
+                onClick={() => setShowForm(false)}
               >
-                {isSubmitting ? 'Saving...' : 'Save'}
+                Cancel
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
 
-      {menusByEvent.length === 0 && unassignedMenus.length === 0 ? (
-        <div className="empty-state">
-          <p className="empty-state-title">No menus yet</p>
-          <p>Create your first reusable menu to get started.</p>
-        </div>
-      ) : (
-        <div className="d-flex flex-column gap-4">
-          {menusByEvent.map(({ event, menus: eventMenus }) => (
-            <div className="card p-3" key={event.id}>
-              <div
-                className="d-flex justify-content-between align-items-center mb-3"
-                style={{ gap: 'var(--space-3)' }}
-              >
-                <h3 className="mb-0" style={{ fontSize: 'var(--text-lg)' }}>
-                  {event.name}
-                </h3>
-                <Link
-                  className="btn btn-sm btn-outline-primary"
-                  to={`/events/${event.id}`}
-                >
-                  View Event
-                </Link>
-              </div>
+      <div className="table-responsive bg-white rounded shadow-sm">
+        <table className="table table-hover align-middle mb-0">
+          <thead className="table-light">
+            <tr>
+              <th>Menu Name</th>
+              <th>Total Items</th>
+              <th>Assigned To Events</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMenus.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center py-4 text-muted">
+                  No menus found. Create a standalone menu blueprint to get
+                  started!
+                </td>
+              </tr>
+            ) : (
+              filteredMenus.map((menu) => {
+                const assignedEventNames =
+                  menu.events && menu.events.length > 0 ? (
+                    menu.events.map((e) => e.name).join(', ')
+                  ) : (
+                    <span className="text-muted fst-italic">Unassigned</span>
+                  );
 
-              <table className="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Menu</th>
-                    <th>Items</th>
-                    <th>Assigned Events</th>
-                    <th>Actions</th>
+                return (
+                  <tr
+                    key={menu.id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={evt => {
+                      // Prevent row click if clicking a button or link
+                      const tag = (evt.target as HTMLElement).tagName;
+                      if (tag === 'BUTTON' || tag === 'A') return;
+                      window.location.href = `/menus/${menu.id}/edit`;
+                    }}
+                  >
+                    <td className="fw-bold">{menu.name}</td>
+                    <td>{menu.menuItems?.length || 0}</td>
+                    <td>{assignedEventNames}</td>
+                    <td>
+                      <Link
+                        className="btn btn-sm btn-outline-primary me-2"
+                        to={`/menus/${menu.id}/edit`}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        Edit Items
+                      </Link>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={e => { e.stopPropagation(); handleDelete(menu); }}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {eventMenus.map((menu) => (
-                    <tr key={`${event.id}-${menu.id}`}>
-                      <td>
-                        <Link to={`/menus/${menu.id}/edit`}>{menu.name}</Link>
-                      </td>
-                      <td>{menu.menuItems?.length ?? 0}</td>
-                      <td>{menu.events?.length ?? 0}</td>
-                      <td className="d-flex gap-2">
-                        <Link
-                          className="btn btn-sm btn-outline-primary"
-                          to={`/menus/${menu.id}/edit`}
-                        >
-                          Edit Items
-                        </Link>
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          type="button"
-                          onClick={() => void handleUnassign(menu.id, event.id)}
-                          disabled={busyMenuId === menu.id}
-                        >
-                          Unassign
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          type="button"
-                          onClick={() => void handleDeleteMenu(menu)}
-                          disabled={busyMenuId === menu.id}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-
-          {unassignedMenus.length > 0 && (
-            <div className="card p-3">
-              <h3 className="mb-3" style={{ fontSize: 'var(--text-lg)' }}>
-                Unassigned Menus
-              </h3>
-              <table className="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Menu</th>
-                    <th>Items</th>
-                    <th>Assign To Event</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unassignedMenus.map((menu) => (
-                    <tr key={menu.id}>
-                      <td>
-                        <Link to={`/menus/${menu.id}/edit`}>{menu.name}</Link>
-                      </td>
-                      <td>{menu.menuItems?.length ?? 0}</td>
-                      <td>
-                        <div className="d-flex gap-2">
-                          <select
-                            value={assignTargets[menu.id] ?? ''}
-                            onChange={(e) =>
-                              setAssignTargets((prev) => ({
-                                ...prev,
-                                [menu.id]: e.target.value,
-                              }))
-                            }
-                            disabled={busyMenuId === menu.id}
-                          >
-                            <option value="">Choose event</option>
-                            {events.map((event) => (
-                              <option key={event.id} value={event.id}>
-                                {event.name}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            className="btn btn-sm btn-primary"
-                            type="button"
-                            onClick={() => void handleAssign(menu.id)}
-                            disabled={
-                              busyMenuId === menu.id ||
-                              !(assignTargets[menu.id] ?? '').trim()
-                            }
-                          >
-                            Assign
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="d-flex gap-2">
-                          <Link
-                            className="btn btn-sm btn-outline-primary"
-                            to={`/menus/${menu.id}/edit`}
-                          >
-                            Edit Items
-                          </Link>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            type="button"
-                            onClick={() => void handleDeleteMenu(menu)}
-                            disabled={busyMenuId === menu.id}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

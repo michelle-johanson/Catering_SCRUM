@@ -1,5 +1,6 @@
 import type { User } from './User';
-import type { Menu } from './Menu'; // You'll need to create this one next!
+import type { Menu } from './Menu';
+import type { EventMenuItem } from './EventMenuItem'; // New import
 
 export type Event = {
   id: number;
@@ -15,5 +16,7 @@ export type Event = {
   companyId: number;
   createdByUserId: number;
   createdByUser?: User;
-  menus: Menu[];
+  assignedMenuId?: number | null; // Replaced menus array
+  assignedMenu?: Menu;
+  eventMenuItems?: EventMenuItem[]; // New specific inventory tracking
 };

@@ -20,7 +20,7 @@ import EventDetailPage from './pages/EventDetailPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import TasksPage from './pages/TasksPage';
 import MenuPage from './pages/MenuPage';
-import MenuEditorPage from './pages/MenuEditorPage';
+import MenuDetailPage from './pages/MenuDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import StaffPage from './pages/StaffPage';
 
@@ -57,7 +57,7 @@ function App() {
 
               {/* Menus */}
               <Route path="/menus" element={<MenuPage />} />
-              <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
+              <Route path="/menus/:id/edit" element={<MenuDetailPage />} />
 
               {/* Staff */}
               <Route path="/staff" element={<StaffPage />} />

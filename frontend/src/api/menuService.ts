@@ -16,8 +16,9 @@ export interface UpdateMenuRequest {
 export interface CreateMenuItemRequest {
   name: string;
   category: string;
-  quantityOrdered: number;
-  quantityWasted: number;
+  cost: number;
+  servingSizeLb: number;
+  recommendedPer100Guests: number; // CHANGED
   menuId: number;
 }
 
@@ -70,11 +71,19 @@ export const fetchMenuById = async (id: number | string): Promise<Menu> => {
   return (await response.json()) as Menu;
 };
 
-export const createMenu = async (data: CreateMenuRequest): Promise<Menu> => {
+export const createMenu = async (data: { name: string }): Promise<Menu> => {
+  const companyId = getAuthCompanyId();
+  if (!companyId) throw new Error('User is not associated with a company.');
+
+  const payload = {
+    ...data,
+    companyId,
+  };
+
   const response = await fetch(`${API_BASE_URL}/menus`, {
     method: 'POST',
     headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
