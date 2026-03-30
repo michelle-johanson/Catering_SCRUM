@@ -272,7 +272,7 @@ function EventDetailPage() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <button
         className="btn btn-secondary mb-3"
         onClick={() => navigate('/events')}

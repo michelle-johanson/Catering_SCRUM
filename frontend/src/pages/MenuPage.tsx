@@ -140,18 +140,15 @@ function MenuPage() {
   }
 
   return (
-    <div>
-      <div
-        className="d-flex justify-content-between align-items-center mb-3"
-        style={{ gap: 'var(--space-3)' }}
-      >
-        <h2 className="mb-0">Menus</h2>
+    <div className="page-container">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Menus</h2>
         <button
-          className="btn btn-primary"
+          className="btn btn-primary btn-sm"
           type="button"
           onClick={() => setIsCreateOpen((prev) => !prev)}
         >
-          {isCreateOpen ? 'Cancel' : 'Create Menu'}
+          {isCreateOpen ? 'Cancel' : '+ Create Menu'}
         </button>
       </div>
 

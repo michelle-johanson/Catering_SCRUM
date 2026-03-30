@@ -91,7 +91,7 @@ function HomePage() {
       : null;
 
   return (
-    <div>
+    <div className="page-container">
 
       {/* --- OKR Snapshot --- */}
       <div className="stats-grid">

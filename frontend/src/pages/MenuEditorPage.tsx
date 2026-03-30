@@ -269,12 +269,12 @@ function MenuEditorPage() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <button
         className="btn btn-secondary mb-3"
         onClick={() => navigate('/menus')}
       >
-        Back
+        ← Back
       </button>
 
       {error && <div className="alert alert-danger">{error}</div>}

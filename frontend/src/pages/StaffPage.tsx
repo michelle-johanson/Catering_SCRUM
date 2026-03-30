@@ -146,7 +146,7 @@ function StaffPage() {
   if (!company) return null;
 
   return (
-    <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <div className="page-container">
       <h2 className="section-title">{company.name} — Staff</h2>
 
       {/* ── Join Code ── */}

@@ -57,7 +57,7 @@ function AnalyticsPage() {
       : null;
 
   return (
-    <div>
+    <div className="page-container">
       <h2 className="section-title">Analytics</h2>
 
       {/* --- Summary Stats --- */}

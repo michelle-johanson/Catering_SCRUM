@@ -14,19 +14,14 @@ function EventList() {
     const loadEvents = async () => {
       setIsLoading(true);
       setError(null);
-
-      const data = await fetchEvents();
-
-      if (data.length === 0) {
-        // If the API failed, fetchEvents() already logged the error.
-        // We still want to show an empty state, but we can show a helper message.
-        setError(
-          'No events found. If you expect events, check that the backend is running and you are logged in.'
-        );
+      try {
+        const data = await fetchEvents();
+        setEvents(data);
+      } catch {
+        setError('Failed to load events. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
-
-      setEvents(data);
-      setIsLoading(false);
     };
 
     void loadEvents();
@@ -53,15 +48,16 @@ function EventList() {
   };
 
   return (
-    <div>
-      <h2 className="section-title">Catering Events</h2>
-
-      <button
-        className="btn btn-primary mb-3"
-        onClick={() => navigate('/events/new')}
-      >
-        Create Event
-      </button>
+    <div className="page-container">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Events</h2>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => navigate('/events/new')}
+        >
+          + Create Event
+        </button>
+      </div>
 
       {isLoading && (
         <div className="alert alert-info mb-4" role="alert">
@@ -70,7 +66,7 @@ function EventList() {
       )}
 
       {!isLoading && error && (
-        <div className="alert alert-warning mb-4" role="alert">
+        <div className="alert alert-danger mb-4" role="alert">
           {error}
         </div>
       )}

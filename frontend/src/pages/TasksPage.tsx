@@ -120,14 +120,14 @@ function TasksPage() {
       ? tasks.filter(t => t.eventId === null)
       : tasks.filter(t => t.eventId === Number(selectedEventId));
 
-  if (loading) return <div className="p-4 alert alert-info">Loading tasks...</div>;
-  if (error) return <div className="alert alert-danger m-4">{error}</div>;
+  if (loading) return <div className="alert alert-info">Loading tasks...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Task Management</h2>
-        <button className="btn btn-primary" onClick={() => handleOpenForm()}>+ Add Task</button>
+    <div className="page-container">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Tasks</h2>
+        <button className="btn btn-primary btn-sm" onClick={() => handleOpenForm()}>+ Add Task</button>
       </div>
 
       <div className="mb-4 d-flex align-items-center">

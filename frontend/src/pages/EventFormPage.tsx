@@ -200,7 +200,7 @@ function EventFormPage() {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <h2 className="section-title">
         {isEditMode ? 'Edit Event' : 'Create Event'}
       </h2>
