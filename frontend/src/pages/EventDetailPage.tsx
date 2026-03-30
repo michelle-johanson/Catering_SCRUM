@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchEventById, updateEvent } from '../api/eventService';
+import { fetchEventById, updateEvent, saveEventInventory } from '../api/eventService';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
 import CreateEventModal from '../components/modals/CreateEventModal';
 import {
   assignMenuToEvent,
@@ -39,6 +40,8 @@ function EventDetailPage() {
   const [isAssigningExistingMenu, setIsAssigningExistingMenu] = useState(false);
 
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [deleteTaskTarget, setDeleteTaskTarget] = useState<Task | null>(null);
+  const [isDeletingTask, setIsDeletingTask] = useState(false);
   const [taskForm, setTaskForm] = useState<{
     title: string;
     description: string;
@@ -139,6 +142,14 @@ function EventDetailPage() {
     if (!totals) return;
 
     try {
+      // Save per-item quantities
+      const inventoryItems = Object.entries(itemQuantities).map(([menuItemId, qty]) => ({
+        menuItemId: Number(menuItemId),
+        qtyOrdered: qty.ordered,
+        qtyLeftover: qty.leftover,
+      }));
+      await saveEventInventory(eventId, inventoryItems);
+
       // Save the calculated totals to the event
       await updateEvent(eventId, {
         id: eventId,
@@ -149,15 +160,18 @@ function EventDetailPage() {
         totalCost: totals.calcTotalCost,
         totalSales: totals.calcTotalSales,
         foodWasteLbs: totals.calcFoodWaste,
+        assignedMenuId: event.assignedMenuId,
+        clientName: event.clientName,
+        clientContact: event.clientContact,
         companyId: getAuthCompanyId()!,
         createdByUserId: getAuthUserId()!,
       });
 
       // Re-fetch to show updated totals
       await loadEventData();
-      alert('Inventory and calculations saved!');
     } catch (err) {
-      setError('Failed to save inventory calculations.');
+      console.error('Save inventory error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save inventory calculations.');
     } finally {
       setIsSavingInventory(false);
     }
@@ -195,7 +209,9 @@ function EventDetailPage() {
     setIsAddingTask(true);
     try {
       const created = await createTask({
-        ...taskForm,
+        title: taskForm.title,
+        status: taskForm.status,
+        dueDate: taskForm.dueDate || null,
         eventId,
         companyId: getAuthCompanyId()!,
       });
@@ -213,13 +229,17 @@ function EventDetailPage() {
     }
   };
 
-  const handleDeleteTask = async (task: Task) => {
-    if (!window.confirm(`Delete task "${task.title}"?`)) return;
+  const handleConfirmDeleteTask = async () => {
+    if (!deleteTaskTarget) return;
+    setIsDeletingTask(true);
     try {
-      await deleteTask(task.id);
-      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+      await deleteTask(deleteTaskTarget.id);
+      setTasks((prev) => prev.filter((t) => t.id !== deleteTaskTarget.id));
+      setDeleteTaskTarget(null);
     } catch (err) {
       setError('Failed to delete task.');
+    } finally {
+      setIsDeletingTask(false);
     }
   };
 
@@ -302,37 +322,103 @@ function EventDetailPage() {
 
         <div className="detail-tab-panel">
           {activeTab === 'overview' && (
-            <div className="row" style={{ rowGap: 'var(--space-4)' }}>
-              <div className="col-12 col-md-4">
-                <div className="card p-3">
-                  <div className="text-muted mb-1">Total Sales</div>
-                  <div>
-                    {event.totalSales != null
-                      ? `$${Number(event.totalSales).toFixed(2)}`
-                      : '—'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+
+              {/* Event Details */}
+              <div className="card p-4 border-0 shadow-sm">
+                <h5 className="section-subtitle mt-0 mb-3">Event Details</h5>
+                <div className="row" style={{ rowGap: 'var(--space-3)' }}>
+                  <div className="col-6 col-md-3">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Date</div>
+                    <div>{formattedDate}</div>
                   </div>
+                  <div className="col-6 col-md-3">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Guest Count</div>
+                    <div>{event.guestCount} people</div>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Budget</div>
+                    <div>${Number(event.budget).toFixed(2)}</div>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Assigned Menu</div>
+                    <div>
+                      {event.assignedMenu
+                        ? <span className="badge bg-primary">{event.assignedMenu.name}</span>
+                        : <span className="text-muted">None assigned</span>}
+                    </div>
+                  </div>
+                  {event.createdByUser && (
+                    <div className="col-6 col-md-3">
+                      <div className="text-muted small text-uppercase fw-bold mb-1">Created By</div>
+                      <div>{event.createdByUser.displayName ?? event.createdByUser.username}</div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="col-12 col-md-4">
-                <div className="card p-3">
-                  <div className="text-muted mb-1">Total Cost</div>
-                  <div>
-                    {event.totalCost != null
-                      ? `$${Number(event.totalCost).toFixed(2)}`
-                      : '—'}
+
+              {/* Client Information */}
+              <div className="card p-4 border-0 shadow-sm">
+                <h5 className="section-subtitle mt-0 mb-3">Client Information</h5>
+                <div className="row" style={{ rowGap: 'var(--space-3)' }}>
+                  <div className="col-12 col-md-6">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Client Name</div>
+                    <div>{event.clientName || <span className="text-muted">—</span>}</div>
+                  </div>
+                  <div className="col-12 col-md-6">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Contact</div>
+                    <div>{event.clientContact || <span className="text-muted">—</span>}</div>
                   </div>
                 </div>
+                {!event.clientName && !event.clientContact && (
+                  <p className="text-muted small mb-0 mt-2">No client information on file. Use Edit Event to add it.</p>
+                )}
               </div>
-              <div className="col-12 col-md-4">
-                <div className="card p-3">
-                  <div className="text-muted mb-1">Food Waste (lbs)</div>
-                  <div>
-                    {event.foodWasteLbs != null
-                      ? Number(event.foodWasteLbs)
-                      : '—'}
+
+              {/* Financial Summary */}
+              <div className="card p-4 border-0 shadow-sm">
+                <h5 className="section-subtitle mt-0 mb-3">Financial Summary</h5>
+                <div className="row" style={{ rowGap: 'var(--space-3)' }}>
+                  <div className="col-12 col-md-4">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Total Sales</div>
+                    <div className="fs-5 fw-semibold">
+                      {event.totalSales != null
+                        ? `$${Number(event.totalSales).toFixed(2)}`
+                        : <span className="text-muted">—</span>}
+                    </div>
                   </div>
+                  <div className="col-12 col-md-4">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Total Cost</div>
+                    <div className="fs-5 fw-semibold">
+                      {event.totalCost != null
+                        ? `$${Number(event.totalCost).toFixed(2)}`
+                        : <span className="text-muted">—</span>}
+                    </div>
+                  </div>
+                  <div className="col-12 col-md-4">
+                    <div className="text-muted small text-uppercase fw-bold mb-1">Food Waste</div>
+                    <div className="fs-5 fw-semibold">
+                      {event.foodWasteLbs != null
+                        ? `${Number(event.foodWasteLbs).toFixed(1)} lbs`
+                        : <span className="text-muted">—</span>}
+                    </div>
+                  </div>
+                  {event.totalSales != null && event.totalCost != null && (
+                    <div className="col-12 col-md-4">
+                      <div className="text-muted small text-uppercase fw-bold mb-1">Profit</div>
+                      <div className={`fs-5 fw-semibold ${event.totalSales - event.totalCost >= 0 ? 'text-success' : 'text-danger'}`}>
+                        ${(event.totalSales - event.totalCost).toFixed(2)}
+                      </div>
+                    </div>
+                  )}
                 </div>
+                {(event.totalSales == null || event.totalCost == null) && (
+                  <p className="text-muted small mb-0 mt-2">
+                    Financials will populate after saving inventory on the Assigned Menu tab.
+                  </p>
+                )}
               </div>
+
             </div>
           )}
 
@@ -483,7 +569,7 @@ function EventDetailPage() {
           {activeTab === 'tasks' && (
             <div className="card p-3">
               <div className="row" style={{ rowGap: 'var(--space-3)' }}>
-                <div className="col-12 col-md-3">
+                <div className="col-12 col-md-4">
                   <label>Title</label>
                   <input
                     type="text"
@@ -498,22 +584,7 @@ function EventDetailPage() {
                     disabled={isAddingTask}
                   />
                 </div>
-                <div className="col-12 col-md-4">
-                  <label>Description</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={taskForm.description}
-                    onChange={(e) =>
-                      setTaskForm((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    disabled={isAddingTask}
-                  />
-                </div>
-                <div className="col-6 col-md-2">
+                <div className="col-6 col-md-3">
                   <label>Status</label>
                   <select
                     className="form-select"
@@ -531,7 +602,7 @@ function EventDetailPage() {
                     <option value="Done">Done</option>
                   </select>
                 </div>
-                <div className="col-6 col-md-2">
+                <div className="col-6 col-md-3">
                   <label>Due Date</label>
                   <input
                     type="date"
@@ -546,13 +617,14 @@ function EventDetailPage() {
                     disabled={isAddingTask}
                   />
                 </div>
-                <div className="col-12 col-md-1 d-flex align-items-end">
+                <div className="col-12 col-md-2">
+                  <label className="invisible">Add</label>
                   <button
                     className="btn btn-primary w-100"
                     onClick={() => void handleAddTask()}
                     disabled={isAddingTask || !taskForm.title.trim()}
                   >
-                    Add
+                    Add Task
                   </button>
                 </div>
               </div>
@@ -572,8 +644,8 @@ function EventDetailPage() {
                         <td>{t.status}</td>
                         <td>
                           <button
-                            className="btn btn-sm btn-secondary"
-                            onClick={() => void handleDeleteTask(t)}
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => setDeleteTaskTarget(t)}
                           >
                             Delete
                           </button>
@@ -587,6 +659,14 @@ function EventDetailPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        open={deleteTaskTarget !== null}
+        itemName={deleteTaskTarget?.title ?? ''}
+        isDeleting={isDeletingTask}
+        onClose={() => setDeleteTaskTarget(null)}
+        onConfirm={() => void handleConfirmDeleteTask()}
+      />
     </div>
   );
 }

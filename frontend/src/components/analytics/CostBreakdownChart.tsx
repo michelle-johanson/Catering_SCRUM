@@ -58,23 +58,20 @@ export default function CostBreakdownChart({ events }: Props) {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      title: {
+      legend: {
         display: true,
-        text: 'Cost vs. Revenue Split',
-        font: { size: 14 },
+        position: 'bottom' as const,
       },
-      tooltip: {
-        callbacks: {
-          label: (ctx: { label: string; parsed: number }) =>
-            `${ctx.label}: $${ctx.parsed.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
-        },
+      title: {
+        display: false,
       },
     },
   };
 
   return (
     <div className="metric-card">
-      <div style={{ height: 300 }}>
+      <h3 className="metric-label">Cost vs. Revenue Split</h3>
+      <div style={{ height: 220 }}>
         <Doughnut data={data} options={options} />
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Event } from '../types/Event';
 import { deleteEvent, fetchEvents } from '../api/eventService';
 import CreateEventModal from '../components/modals/CreateEventModal';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
 
 function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -9,6 +10,8 @@ function EventsPage() {
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadEvents = async () => {
     setIsLoading(true);
@@ -25,18 +28,19 @@ function EventsPage() {
 
   useEffect(() => { void loadEvents(); }, []);
 
-  const handleDeleteEvent = async (id: number, name: string) => {
-    const shouldDelete = window.confirm(
-      `Delete event "${name}"? This action cannot be undone.`
-    );
-    if (!shouldDelete) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteEvent(id);
-      setEvents((prev) => prev.filter((event) => event.id !== id));
+      await deleteEvent(deleteTarget.id);
+      setEvents((prev) => prev.filter((event) => event.id !== deleteTarget.id));
+      setDeleteTarget(null);
       setError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete event.';
       setError(`Could not delete event. ${message}`);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -120,7 +124,7 @@ function EventsPage() {
                     </button>
                     <button
                       className="btn btn-sm btn-outline-danger"
-                      onClick={(evt) => { evt.stopPropagation(); void handleDeleteEvent(e.id, e.name); }}
+                      onClick={(evt) => { evt.stopPropagation(); setDeleteTarget({ id: e.id, name: e.name }); }}
                     >
                       Delete
                     </button>
@@ -137,6 +141,14 @@ function EventsPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={handleModalSuccess}
         editingEvent={editingEvent}
+      />
+
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        itemName={deleteTarget?.name ?? ''}
+        isDeleting={isDeleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void handleConfirmDelete()}
       />
     </div>
   );

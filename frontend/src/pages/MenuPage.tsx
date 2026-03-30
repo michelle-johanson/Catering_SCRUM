@@ -4,6 +4,7 @@ import { fetchMenus, createMenu, deleteMenu } from '../api/menuService';
 import { fetchEvents } from '../api/eventService';
 import type { Menu } from '../types/Menu';
 import type { Event } from '../types/Event';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
 
 function MenuPage() {
   const [menus, setMenus] = useState<Menu[]>([]);
@@ -15,6 +16,8 @@ function MenuPage() {
   const [selectedEventId, setSelectedEventId] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '' });
+  const [deleteTarget, setDeleteTarget] = useState<Menu | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -56,16 +59,17 @@ function MenuPage() {
     }
   };
 
-  const handleDelete = async (menu: Menu) => {
-    if (
-      !confirm(`Delete menu "${menu.name}"? This will also delete its items.`)
-    )
-      return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteMenu(menu.id);
+      await deleteMenu(deleteTarget.id);
+      setDeleteTarget(null);
       loadData();
     } catch (err: any) {
       alert(err.message || 'Failed to delete menu');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -200,7 +204,7 @@ function MenuPage() {
                       </Link>
                       <button
                         className="btn btn-sm btn-outline-danger"
-                        onClick={e => { e.stopPropagation(); handleDelete(menu); }}
+                        onClick={e => { e.stopPropagation(); setDeleteTarget(menu); }}
                       >
                         Delete
                       </button>
@@ -212,6 +216,13 @@ function MenuPage() {
           </tbody>
         </table>
       </div>
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        itemName={deleteTarget?.name ?? ''}
+        isDeleting={isDeleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void handleConfirmDelete()}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
 import { fetchEvents } from '../api/eventService';
 import {
   assignMenuToEvent,
@@ -14,7 +15,6 @@ import type { Event } from '../types/Event';
 import type { Menu } from '../types/Menu';
 import type { MenuItem } from '../types/MenuItem';
 
-// FIXED: Updated the type to match the new property
 type ItemFormState = {
   name: string;
   category: string;
@@ -23,7 +23,6 @@ type ItemFormState = {
   recommendedPer100Guests: string;
 };
 
-// FIXED: Updated the initial state
 const initialItemForm: ItemFormState = {
   name: '',
   category: 'Main',
@@ -51,6 +50,12 @@ function MenuDetailPage() {
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [isSavingItem, setIsSavingItem] = useState(false);
   const [busyEventId, setBusyEventId] = useState<number | null>(null);
+
+  // State for the Delete Modal
+  const [deleteItemTarget, setDeleteItemTarget] = useState<MenuItem | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!id) {
@@ -108,7 +113,6 @@ function MenuDetailPage() {
 
   const handleEditItem = (item: MenuItem) => {
     setEditingItemId(item.id);
-    // FIXED: Mapping the correct property into the form
     setItemForm({
       name: item.name,
       category: item.category,
@@ -125,7 +129,6 @@ function MenuDetailPage() {
     const category = itemForm.category;
     const cost = Number(itemForm.cost);
     const servingSizeLb = Number(itemForm.servingSizeLb);
-    // FIXED: Parsing the correct form property
     const recommendedPer100Guests = Number(itemForm.recommendedPer100Guests);
 
     if (!name || !category) {
@@ -136,7 +139,6 @@ function MenuDetailPage() {
     setIsSavingItem(true);
     setError(null);
 
-    // FIXED: Payload now matches the CreateMenuItemRequest interface
     const payload = {
       name,
       category,
@@ -177,31 +179,32 @@ function MenuDetailPage() {
     }
   };
 
-  const handleDeleteItem = async (item: MenuItem) => {
-    if (!menu) return;
-    if (!window.confirm(`Delete menu item "${item.name}"?`)) return;
+  // NEW: Converted to use the modal instead of window.confirm
+  const handleConfirmDelete = async () => {
+    if (!menu || !deleteItemTarget) return;
 
-    setIsSavingItem(true);
+    setIsDeleting(true);
     setError(null);
     try {
-      await deleteMenuItem(item.id);
+      await deleteMenuItem(deleteItemTarget.id);
       setMenu((prev) =>
         prev
           ? {
               ...prev,
               menuItems: (prev.menuItems ?? []).filter(
-                (mi) => mi.id !== item.id
+                (mi) => mi.id !== deleteItemTarget.id
               ),
             }
           : prev
       );
-      if (editingItemId === item.id) resetItemForm();
+      if (editingItemId === deleteItemTarget.id) resetItemForm();
+      setDeleteItemTarget(null); // Close the modal on success
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to delete menu item.'
       );
     } finally {
-      setIsSavingItem(false);
+      setIsDeleting(false);
     }
   };
 
@@ -308,7 +311,6 @@ function MenuDetailPage() {
                   <th>Category</th>
                   <th>Cost ($)</th>
                   <th>Serving Size (lbs)</th>
-                  {/* FIXED: Header changed */}
                   <th>Recommended / 100 Guests</th>
                   <th>Actions</th>
                 </tr>
@@ -320,7 +322,6 @@ function MenuDetailPage() {
                     <td>{item.category}</td>
                     <td>${item.cost.toFixed(2)}</td>
                     <td>{item.servingSizeLb} lbs</td>
-                    {/* FIXED: Rendering correct property */}
                     <td>{item.recommendedPer100Guests}</td>
                     <td className="d-flex gap-2">
                       <button
@@ -332,7 +333,7 @@ function MenuDetailPage() {
                       </button>
                       <button
                         className="btn btn-sm btn-danger"
-                        onClick={() => void handleDeleteItem(item)}
+                        onClick={() => setDeleteItemTarget(item)} // NEW: Triggers the modal
                         disabled={isSavingItem}
                       >
                         Delete
@@ -403,7 +404,6 @@ function MenuDetailPage() {
               />
             </div>
             <div className="col-6 col-md-2">
-              {/* FIXED: Label and input mapping updated */}
               <label>Rec. / 100 Guests</label>
               <input
                 type="number"
@@ -477,6 +477,15 @@ function MenuDetailPage() {
           </table>
         </div>
       )}
+
+      {/* NEW: The Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        open={deleteItemTarget !== null}
+        itemName={deleteItemTarget?.name ?? ''}
+        isDeleting={isDeleting}
+        onClose={() => setDeleteItemTarget(null)}
+        onConfirm={() => void handleConfirmDelete()}
+      />
     </div>
   );
 }

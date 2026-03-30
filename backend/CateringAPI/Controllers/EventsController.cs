@@ -108,6 +108,47 @@ namespace CateringAPI.Controllers
             return NoContent();
         }
 
+        public class InventoryItemDto
+        {
+            public int MenuItemId { get; set; }
+            public int QtyOrdered { get; set; }
+            public int QtyLeftover { get; set; }
+        }
+
+        // PUT: api/Events/5/inventory
+        [HttpPut("{id}/inventory")]
+        public async Task<IActionResult> PutEventInventory(int id, [FromBody] List<InventoryItemDto> items)
+        {
+            if (!EventExists(id))
+                return NotFound();
+
+            foreach (var item in items)
+            {
+                var existing = await _context.EventMenuItems
+                    .FirstOrDefaultAsync(e => e.EventId == id && e.MenuItemId == item.MenuItemId);
+
+                if (existing != null)
+                {
+                    existing.QtyOrdered = item.QtyOrdered;
+                    existing.QtyLeftover = item.QtyLeftover;
+                }
+                else
+                {
+                    _context.EventMenuItems.Add(new EventMenuItem
+                    {
+                        EventId = id,
+                        MenuItemId = item.MenuItemId,
+                        QtyOrdered = item.QtyOrdered,
+                        QtyLeftover = item.QtyLeftover,
+                    });
+                }
+            }
+
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private bool EventExists(int id)
         {
             return _context.Events.Any(e => e.Id == id);

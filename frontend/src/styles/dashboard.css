@@ -18,7 +18,8 @@
 /* --- Stat card grid --- */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /* explicitly force 3 columns so we get a 3x2 grid for 6 items */
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
   margin-bottom: var(--space-8);
 }
@@ -89,11 +90,15 @@
 }
 
 /* --- Responsive --- */
-@media (max-width: 768px) {
+
+/* Squish to 2x3 on medium screens (like tablets) */
+@media (max-width: 992px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
+@media (max-width: 768px) {
   .charts-grid {
     grid-template-columns: 1fr;
   }
@@ -105,7 +110,8 @@
   }
 }
 
-@media (max-width: 480px) {
+/* Squish to 1x6 on small screens (like phones) */
+@media (max-width: 576px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }

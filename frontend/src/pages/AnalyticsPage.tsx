@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fetchEvents } from '../api/eventService';
 import type { Event } from '../types/Event';
-import FoodWasteChart from '../components/dashboard/FoodWasteChart';
-import ProfitabilityChart from '../components/dashboard/ProfitabilityChart';
-import WasteProfitCorrelation from '../components/dashboard/WasteProfitCorrelation';
-import RevenuePerGuestChart from '../components/dashboard/RevenuePerGuestChart';
-import CostBreakdownChart from '../components/dashboard/CostBreakdownChart';
+import FoodWasteChart from '../components/analytics/FoodWasteChart';
+import ProfitabilityChart from '../components/analytics/ProfitabilityChart';
+import WasteProfitCorrelation from '../components/analytics/WasteProfitCorrelation';
+import RevenuePerGuestChart from '../components/analytics/RevenuePerGuestChart';
+import CostBreakdownChart from '../components/analytics/CostBreakdownChart';
 import '../styles/dashboard.css';
 
 function AnalyticsPage() {

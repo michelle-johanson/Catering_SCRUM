@@ -62,7 +62,7 @@ export default function WasteProfitCorrelation({ events }: Props) {
         pointHoverRadius: 8,
       },
       {
-        label: 'High waste',
+        label: 'High waste/loss',
         data: highWastePoints,
         backgroundColor: BAD_ORANGE,
         borderColor: BAD_ORANGE,
@@ -76,18 +76,16 @@ export default function WasteProfitCorrelation({ events }: Props) {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { display: true },
+      legend: { display: true, position: 'bottom' },
       title: {
         display: true,
-        text: 'Food Waste vs. Profit Correlation',
+        text: 'Food Waste vs. Profit',
         font: { size: 14 },
       },
       tooltip: {
         callbacks: {
-          label: (ctx: TooltipItem<'scatter'>) => {
-            const x = ctx.parsed.x ?? 0;
-            const y = ctx.parsed.y ?? 0;
-            return `Waste: ${x} lbs, Profit: $${y.toFixed(2)}`;
+          label: function (context: TooltipItem<'scatter'>) {
+            return `Waste: ${context.parsed.x} lbs, Profit: $${context.parsed.y}`;
           },
         },
       },
@@ -97,25 +95,17 @@ export default function WasteProfitCorrelation({ events }: Props) {
         title: { display: true, text: 'Food Waste (lbs)' },
         beginAtZero: true,
       },
-      y: { title: { display: true, text: 'Profit ($)' } },
+      y: {
+        title: { display: true, text: 'Profit ($)' },
+        beginAtZero: true,
+      },
     },
   };
 
-  if (points.length < 2) {
-    return (
-      <div className="metric-card">
-        <h3 className="metric-label">Food Waste vs. Profit Correlation</h3>
-        <p className="text-muted">
-          Need at least 2 events with waste and financial data to show
-          correlation.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="metric-card">
-      <div style={{ height: 300 }}>
+      <h3 className="metric-label">Food Waste vs. Profit</h3>
+      <div style={{ height: 220 }}>
         <Scatter data={data} options={options} />
       </div>
     </div>

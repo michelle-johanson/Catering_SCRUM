@@ -59,32 +59,17 @@ export default function ProfitabilityChart({ events }: Props) {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      title: {
-        display: true,
-        text: 'Profit Margin by Event',
-        font: { size: 14 },
-      },
+      title: { display: true, text: 'Profit Margin by Event', font: { size: 14 } },
     },
     scales: {
-      y: { title: { display: true, text: 'Margin (%)' } },
+      y: { beginAtZero: true, title: { display: true, text: 'Margin (%)' } },
     },
   };
 
-  if (sorted.length === 0) {
-    return (
-      <div className="metric-card">
-        <h3 className="metric-label">Profit Margin by Event</h3>
-        <p className="text-muted">
-          No sales/cost data yet. Add post-event financials to see
-          profitability.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="metric-card">
-      <div style={{ height: 300 }}>
+      <h3 className="metric-label">Profit Margin by Event</h3>
+      <div style={{ height: 220 }}>
         <Bar data={data} options={options} />
       </div>
     </div>
