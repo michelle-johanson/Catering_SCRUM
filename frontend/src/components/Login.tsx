@@ -157,7 +157,6 @@ function Login() {
           <p>
             Don't have an account? <a href="/register">Sign up here</a>
           </p>
-          <a href="#forgot-password">Forgot password?</a>
         </div>
       </div>
     </div>

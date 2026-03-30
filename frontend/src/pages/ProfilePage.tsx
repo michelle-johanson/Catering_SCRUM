@@ -5,14 +5,11 @@ import {
   withAuthHeaders, storeAuthSession, getAuthToken, logoutUser,
 } from '../api/loginService';
 import type { User } from '../types/User';
+import DeleteAccountModal from '../components/modals/DeleteAccountModal';
+import type { DeleteModal } from '../components/modals/DeleteAccountModal';
 import '../styles/profile.css';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? '/api';
-
-type DeleteModal =
-  | { open: false }
-  | { open: true; canDelete: false; blockReason: string }
-  | { open: true; canDelete: true; companyWillBeDeleted: boolean; companyName: string | null };
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -32,6 +29,17 @@ function ProfilePage() {
   const [modal, setModal] = useState<DeleteModal>({ open: false });
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Change password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [isChangingPw, setIsChangingPw] = useState(false);
+  const [changePwError, setChangePwError] = useState<string | null>(null);
+  const [changePwSuccess, setChangePwSuccess] = useState(false);
 
   const companyName = getAuthCompanyName();
 
@@ -152,6 +160,42 @@ function ProfilePage() {
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePwError(null);
+    setChangePwSuccess(false);
+
+    if (newPassword.length < 6) { setChangePwError('New password must be at least 6 characters.'); return; }
+    if (newPassword !== confirmPassword) { setChangePwError('New passwords do not match.'); return; }
+
+    const userId = getAuthUserId();
+    if (!userId) return;
+
+    setIsChangingPw(true);
+    try {
+      const res = await fetch(`${API_BASE}/users/${userId}/change-password`, {
+        method: 'POST',
+        headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      if (res.status === 400) {
+        const data = await res.json() as { message: string };
+        setChangePwError(data.message ?? 'Current password is incorrect.');
+        return;
+      }
+      if (!res.ok) throw new Error();
+      setChangePwSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setChangePwSuccess(false), 3000);
+    } catch {
+      setChangePwError('Failed to change password. Please try again.');
+    } finally {
+      setIsChangingPw(false);
+    }
+  };
+
   const usernameStatusEl = () => {
     if (usernameStatus === 'checking') return <span className="username-status checking">Checking…</span>;
     if (usernameStatus === 'available') return <span className="username-status available">✓ Available</span>;
@@ -255,6 +299,92 @@ function ProfilePage() {
         </div>
       </section>
 
+      {/* ── Change password ── */}
+      <section className="settings-section">
+        <div className="settings-section-header">
+          <p className="settings-section-title">Change Password</p>
+          <p className="settings-section-desc">Update your login password.</p>
+        </div>
+
+        <form onSubmit={handleChangePassword}>
+          <div className="settings-section-body">
+            <div className="settings-field">
+              <label htmlFor="current-password">Current Password</label>
+              <div className="password-input-wrapper">
+                <input
+                  id="current-password"
+                  type={showCurrentPw ? 'text' : 'password'}
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  disabled={isChangingPw}
+                  autoComplete="current-password"
+                />
+                <button type="button" className="toggle-password-btn" onClick={() => setShowCurrentPw(p => !p)} disabled={isChangingPw} aria-label={showCurrentPw ? 'Hide password' : 'Show password'}>
+                  {showCurrentPw ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="settings-field">
+              <label htmlFor="new-password">New Password</label>
+              <div className="password-input-wrapper">
+                <input
+                  id="new-password"
+                  type={showNewPw ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  disabled={isChangingPw}
+                  autoComplete="new-password"
+                />
+                <button type="button" className="toggle-password-btn" onClick={() => setShowNewPw(p => !p)} disabled={isChangingPw} aria-label={showNewPw ? 'Hide password' : 'Show password'}>
+                  {showNewPw ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                  )}
+                </button>
+              </div>
+              <span className="settings-field-hint">At least 6 characters.</span>
+            </div>
+
+            <div className="settings-field">
+              <label htmlFor="confirm-password">Confirm New Password</label>
+              <div className="password-input-wrapper">
+                <input
+                  id="confirm-password"
+                  type={showConfirmPw ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  disabled={isChangingPw}
+                  autoComplete="new-password"
+                />
+                <button type="button" className="toggle-password-btn" onClick={() => setShowConfirmPw(p => !p)} disabled={isChangingPw} aria-label={showConfirmPw ? 'Hide password' : 'Show password'}>
+                  {showConfirmPw ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={18} height={18}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-section-footer">
+            <span>
+              {changePwSuccess && <span className="settings-save-feedback">Password changed.</span>}
+              {changePwError && <span className="settings-save-error">{changePwError}</span>}
+            </span>
+            <button type="submit" className="btn btn-primary" disabled={isChangingPw}>
+              {isChangingPw ? 'Updating…' : 'Change Password'}
+            </button>
+          </div>
+        </form>
+      </section>
+
       {/* ── Danger zone ── */}
       <section className="settings-section danger">
         <div className="settings-section-header">
@@ -275,54 +405,12 @@ function ProfilePage() {
         )}
       </section>
 
-      {/* ── Delete confirmation modal ── */}
-      {modal.open && (
-        <div className="modal-overlay" onClick={() => setModal({ open: false })}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            {!modal.canDelete ? (
-              <>
-                <div className="modal-header">
-                  <p className="modal-title">Cannot delete account</p>
-                </div>
-                <div className="modal-body">
-                  <p className="modal-block">{modal.blockReason}</p>
-                </div>
-                <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={() => setModal({ open: false })}>
-                    Close
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="modal-header">
-                  <p className="modal-title">Delete your account?</p>
-                </div>
-                <div className="modal-body">
-                  <p>This action is permanent and cannot be undone.</p>
-                  {modal.companyWillBeDeleted && (
-                    <p className="modal-warning">
-                      You are the only member of <strong>{modal.companyName}</strong>. Deleting your account will also permanently delete the company and all of its events, menus, and tasks.
-                    </p>
-                  )}
-                </div>
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setModal({ open: false })}
-                    disabled={isDeleting}
-                  >
-                    Cancel
-                  </button>
-                  <button className="btn-danger" onClick={handleConfirmDelete} disabled={isDeleting}>
-                    {isDeleting ? 'Deleting…' : 'Yes, delete my account'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <DeleteAccountModal
+        modal={modal}
+        isDeleting={isDeleting}
+        onClose={() => setModal({ open: false })}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
