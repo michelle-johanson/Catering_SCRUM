@@ -8,6 +8,13 @@ public class Menu
 
     [Required]
     public string Name { get; set; } = string.Empty;
+    
+    public string? Description { get; set; }
+
+    // ADDED: Explicit multi-tenant tracking
+    [Required]
+    public int CompanyId { get; set; }
+    public Company? Company { get; set; }
 
     public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
 

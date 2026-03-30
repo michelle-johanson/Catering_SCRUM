@@ -1,4 +1,3 @@
-// Tyler Mitton
 // Handles incoming HTTP requests related to Event data (Create, Read, Update, Delete).
 // backend/CateringAPI/Controllers/EventsController.cs
 
@@ -37,8 +36,11 @@ namespace CateringAPI.Controllers
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var targetEvent = await _context.Events
-                .Include(e => e.Menus)
-                    .ThenInclude(m => m.MenuItems)
+                // FIXED: Changed from Menus to AssignedMenu
+                .Include(e => e.AssignedMenu)
+                    .ThenInclude(m => m!.MenuItems)
+                // ADDED: Include the specific quantities payload table
+                .Include(e => e.EventMenuItems)
                 .Include(e => e.Tasks)
                 .FirstOrDefaultAsync(e => e.Id == id);
 

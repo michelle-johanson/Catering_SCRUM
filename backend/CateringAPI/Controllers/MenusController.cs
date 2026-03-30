@@ -1,4 +1,3 @@
-// Tyler Mitton
 // Handles incoming HTTP requests related to Menu data (Create, Read, Update, Delete).
 // backend/CateringAPI/Controllers/MenusController.cs
 
@@ -9,9 +8,10 @@ using CateringAPI.Models;
 
 namespace CateringAPI.Controllers
 {
-    public sealed class CreateMenuRequest
+public sealed class CreateMenuRequest
     {
         public string Name { get; set; } = string.Empty;
+        public int CompanyId { get; set; } // ADDED
     }
 
     public sealed class UpdateMenuRequest
@@ -39,8 +39,13 @@ namespace CateringAPI.Controllers
                 .Include(m => m.MenuItems)
                 .Include(m => m.Events)
                 .AsQueryable();
+
             if (companyId.HasValue)
-                query = query.Where(m => m.Events.Any(e => e.CompanyId == companyId.Value));
+            {
+                // FIXED: Now we filter purely by the Menu's true owner
+                query = query.Where(m => m.CompanyId == companyId.Value);
+            }
+
             return await query.ToListAsync();
         }
 
@@ -137,6 +142,7 @@ namespace CateringAPI.Controllers
             var newMenu = new Menu
             {
                 Name = trimmedName,
+                CompanyId = request.CompanyId // ADDED: Attach the company
             };
 
             _context.Menus.Add(newMenu);
@@ -153,29 +159,28 @@ namespace CateringAPI.Controllers
             return CreatedAtAction(nameof(GetMenu), new { id = newMenu.Id }, newMenu);
         }
 
+        // FIXED: Now assigns by updating the Event's AssignedMenuId
         [HttpPost("{menuId}/events/{eventId}")]
         public async Task<IActionResult> AssignMenuToEvent(int menuId, int eventId)
         {
-            var menu = await _context.Menus
-                .Include(m => m.Events)
-                .FirstOrDefaultAsync(m => m.Id == menuId);
-            if (menu == null)
-            {
-                return NotFound("Menu not found.");
-            }
-
             var targetEvent = await _context.Events.FindAsync(eventId);
             if (targetEvent == null)
             {
                 return NotFound("Event not found.");
             }
 
-            if (menu.Events.Any(e => e.Id == eventId))
+            var menu = await _context.Menus.FindAsync(menuId);
+            if (menu == null)
+            {
+                return NotFound("Menu not found.");
+            }
+
+            if (targetEvent.AssignedMenuId == menuId)
             {
                 return Conflict("Menu is already assigned to this event.");
             }
 
-            menu.Events.Add(targetEvent);
+            targetEvent.AssignedMenuId = menuId;
 
             try
             {
@@ -189,24 +194,23 @@ namespace CateringAPI.Controllers
             return NoContent();
         }
 
+        // FIXED: Now unassigns by nulling out the Event's AssignedMenuId
         [HttpDelete("{menuId}/events/{eventId}")]
         public async Task<IActionResult> UnassignMenuFromEvent(int menuId, int eventId)
         {
-            var menu = await _context.Menus
-                .Include(m => m.Events)
-                .FirstOrDefaultAsync(m => m.Id == menuId);
-            if (menu == null)
+            var targetEvent = await _context.Events.FindAsync(eventId);
+            if (targetEvent == null)
             {
-                return NotFound("Menu not found.");
+                return NotFound("Event not found.");
             }
 
-            var existingAssignment = menu.Events.FirstOrDefault(e => e.Id == eventId);
-            if (existingAssignment == null)
+            if (targetEvent.AssignedMenuId != menuId)
             {
                 return NotFound("Menu assignment not found.");
             }
 
-            menu.Events.Remove(existingAssignment);
+            targetEvent.AssignedMenuId = null;
+            
             await _context.SaveChangesAsync();
             return NoContent();
         }
