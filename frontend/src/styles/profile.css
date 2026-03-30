@@ -232,7 +232,7 @@
 /* -----------------------------------------------------------
    Confirmation modal
    ----------------------------------------------------------- */
-.modal-overlay {
+.app-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(28, 28, 26, 0.45);
@@ -243,7 +243,7 @@
   padding: var(--space-6);
 }
 
-.modal {
+.app-modal {
   background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -258,31 +258,35 @@
   to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-.modal-header {
+.app-modal-wide {
+  max-width: 720px;
+}
+
+.app-modal-header {
   padding: var(--space-6) var(--space-6) var(--space-4);
 }
 
-.modal-title {
+.app-modal-title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
   color: var(--color-text-primary);
   margin: 0 0 var(--space-3) 0;
 }
 
-.modal-body {
+.app-modal-body {
   padding: 0 var(--space-6) var(--space-5);
 }
 
-.modal-body p {
+.app-modal-body p {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   margin: 0 0 var(--space-3) 0;
   line-height: var(--leading-normal);
 }
 
-.modal-body p:last-child { margin-bottom: 0; }
+.app-modal-body p:last-child { margin-bottom: 0; }
 
-.modal-warning {
+.app-modal-warning {
   background: var(--color-danger-bg);
   border-left: 3px solid var(--color-danger);
   border-radius: var(--radius-sm);
@@ -292,7 +296,7 @@
   margin-top: var(--space-3);
 }
 
-.modal-block {
+.app-modal-block {
   background: var(--color-warning-bg);
   border-left: 3px solid var(--color-warning);
   border-radius: var(--radius-sm);
@@ -301,7 +305,7 @@
   color: var(--color-warning) !important;
 }
 
-.modal-footer {
+.app-modal-footer {
   padding: var(--space-4) var(--space-6);
   border-top: var(--border);
   background: var(--color-bg);

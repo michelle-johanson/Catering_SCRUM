@@ -11,6 +11,8 @@ export interface CreateEventRequest {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  clientName?: string;
+  clientContact?: string;
   createdByUserId: number;
   companyId: number;
 }
@@ -83,6 +85,9 @@ export interface UpdateEventRequest {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  clientName?: string;
+  clientContact?: string;
+  assignedMenuId?: number | null;
   createdByUserId: number;
   companyId: number;
 }
@@ -95,6 +100,20 @@ export const updateEvent = async (
     method: 'PUT',
     headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(eventData),
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const saveEventInventory = async (
+  eventId: number,
+  items: { menuItemId: number; qtyOrdered: number; qtyLeftover: number }[]
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/events/${eventId}/inventory`, {
+    method: 'PUT',
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(items),
   });
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);

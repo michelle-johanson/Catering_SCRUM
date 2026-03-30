@@ -1,4 +1,3 @@
-// Tyler Mitton
 // Handles incoming HTTP requests related to Event data (Create, Read, Update, Delete).
 // backend/CateringAPI/Controllers/EventsController.cs
 
@@ -37,8 +36,11 @@ namespace CateringAPI.Controllers
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var targetEvent = await _context.Events
-                .Include(e => e.Menus)
-                    .ThenInclude(m => m.MenuItems)
+                // FIXED: Changed from Menus to AssignedMenu
+                .Include(e => e.AssignedMenu)
+                    .ThenInclude(m => m!.MenuItems)
+                // ADDED: Include the specific quantities payload table
+                .Include(e => e.EventMenuItems)
                 .Include(e => e.Tasks)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -103,6 +105,47 @@ namespace CateringAPI.Controllers
             _context.Events.Remove(targetEvent);
             await _context.SaveChangesAsync();
 
+            return NoContent();
+        }
+
+        public class InventoryItemDto
+        {
+            public int MenuItemId { get; set; }
+            public int QtyOrdered { get; set; }
+            public int QtyLeftover { get; set; }
+        }
+
+        // PUT: api/Events/5/inventory
+        [HttpPut("{id}/inventory")]
+        public async Task<IActionResult> PutEventInventory(int id, [FromBody] List<InventoryItemDto> items)
+        {
+            if (!EventExists(id))
+                return NotFound();
+
+            foreach (var item in items)
+            {
+                var existing = await _context.EventMenuItems
+                    .FirstOrDefaultAsync(e => e.EventId == id && e.MenuItemId == item.MenuItemId);
+
+                if (existing != null)
+                {
+                    existing.QtyOrdered = item.QtyOrdered;
+                    existing.QtyLeftover = item.QtyLeftover;
+                }
+                else
+                {
+                    _context.EventMenuItems.Add(new EventMenuItem
+                    {
+                        EventId = id,
+                        MenuItemId = item.MenuItemId,
+                        QtyOrdered = item.QtyOrdered,
+                        QtyLeftover = item.QtyLeftover,
+                    });
+                }
+            }
+
+
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 

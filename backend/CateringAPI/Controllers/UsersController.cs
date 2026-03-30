@@ -115,9 +115,33 @@ namespace CateringAPI.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/change-password")]
+        public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.CurrentPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
+                return BadRequest(new { message = "Current and new password are required." });
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
+
+            if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+                return BadRequest(new { message = "Current password is incorrect." });
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);
         }
     }
+}
+
+public class ChangePasswordRequest
+{
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
 }

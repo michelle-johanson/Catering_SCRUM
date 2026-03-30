@@ -24,6 +24,10 @@ public class Event
 
     public decimal? TotalSales { get; set; }
 
+    public string? ClientName { get; set; }
+
+    public string? ClientContact { get; set; }
+
     [Required]
     public int CompanyId { get; set; }
 
@@ -34,7 +38,13 @@ public class Event
 
     public User? CreatedByUser { get; set; }
 
-    public ICollection<Menu> Menus { get; set; } = new List<Menu>();
+    // Replaced the old Many-to-Many Menus collection with a single AssignedMenu
+    public int? AssignedMenuId { get; set; }
+    
+    public Menu? AssignedMenu { get; set; }
+
+    // Navigation property for specific item quantities and leftovers at this event
+    public ICollection<EventMenuItem> EventMenuItems { get; set; } = new List<EventMenuItem>();
 
     public ICollection<CateringTask> Tasks { get; set; } = new List<CateringTask>();
 }

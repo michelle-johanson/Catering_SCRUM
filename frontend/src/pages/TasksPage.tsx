@@ -6,6 +6,7 @@ import { getAuthCompanyId } from '../api/loginService';
 import type { Task } from '../types/Task';
 import type { Event } from '../types/Event';
 import '../styles/tasks.css';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
 
 function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -16,6 +17,8 @@ function TasksPage() {
   
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Task | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const location = useLocation();
 
@@ -104,13 +107,17 @@ function TasksPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Delete this task?')) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      await deleteTask(id);
+      await deleteTask(deleteTarget.id);
+      setDeleteTarget(null);
       loadData();
     } catch (err: any) {
       alert(err.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -120,14 +127,14 @@ function TasksPage() {
       ? tasks.filter(t => t.eventId === null)
       : tasks.filter(t => t.eventId === Number(selectedEventId));
 
-  if (loading) return <div className="p-4 alert alert-info">Loading tasks...</div>;
-  if (error) return <div className="alert alert-danger m-4">{error}</div>;
+  if (loading) return <div className="alert alert-info">Loading tasks...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Task Management</h2>
-        <button className="btn btn-primary" onClick={() => handleOpenForm()}>+ Add Task</button>
+    <div className="page-container">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>Tasks</h2>
+        <button className="btn btn-primary btn-sm" onClick={() => handleOpenForm()}>+ Add Task</button>
       </div>
 
       <div className="mb-4 d-flex align-items-center">
@@ -215,7 +222,7 @@ function TasksPage() {
                   <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
                   <td>
                     <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleOpenForm(task)}>Edit</button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(task.id)}>Delete</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => setDeleteTarget(task)}>Delete</button>
                   </td>
                 </tr>
               )
@@ -223,6 +230,13 @@ function TasksPage() {
           </tbody>
         </table>
       </div>
+      <ConfirmDeleteModal
+        open={deleteTarget !== null}
+        itemName={deleteTarget?.title ?? ''}
+        isDeleting={isDeleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void handleConfirmDelete()}
+      />
     </div>
   );
 }

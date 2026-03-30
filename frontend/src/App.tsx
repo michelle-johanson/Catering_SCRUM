@@ -11,19 +11,16 @@ import { isAuthenticated } from './api/loginService';
 import Login from './components/Login';
 import Register from './components/Register';
 
-// TODO: Delete EventList once EventsPage is fully implemented
-import EventList from './components/EventList';
+import EventsPage from './pages/EventsPage';
 
 // Pages
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
-// TODO: import EventsPage from './pages/EventsPage'; — uncomment when EventsPage is implemented and EventList is removed
 import EventDetailPage from './pages/EventDetailPage';
-import EventFormPage from './pages/EventFormPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import TasksPage from './pages/TasksPage';
 import MenuPage from './pages/MenuPage';
-import MenuEditorPage from './pages/MenuEditorPage';
+import MenuDetailPage from './pages/MenuDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import StaffPage from './pages/StaffPage';
 
@@ -48,11 +45,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<HomePage />} />
 
-              {/* Events — TODO: swap EventList for EventsPage once EventsPage is implemented */}
-              <Route path="/events" element={<EventList />} />
-              <Route path="/events/new" element={<EventFormPage />} />
+              {/* Events */}
+              <Route path="/events" element={<EventsPage />} />
               <Route path="/events/:id" element={<EventDetailPage />} />
-              <Route path="/events/:id/edit" element={<EventFormPage />} />
 
               {/* Analytics */}
               <Route path="/analytics" element={<AnalyticsPage />} />
@@ -62,7 +57,7 @@ function App() {
 
               {/* Menus */}
               <Route path="/menus" element={<MenuPage />} />
-              <Route path="/menus/:id/edit" element={<MenuEditorPage />} />
+              <Route path="/menus/:id/edit" element={<MenuDetailPage />} />
 
               {/* Staff */}
               <Route path="/staff" element={<StaffPage />} />

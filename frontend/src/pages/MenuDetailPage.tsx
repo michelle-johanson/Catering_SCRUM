@@ -1,0 +1,493 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import ConfirmDeleteModal from '../components/modals/ConfirmDeleteModal';
+import { fetchEvents } from '../api/eventService';
+import {
+  assignMenuToEvent,
+  createMenuItem,
+  deleteMenuItem,
+  fetchMenuById,
+  unassignMenuFromEvent,
+  updateMenu,
+  updateMenuItem,
+} from '../api/menuService';
+import type { Event } from '../types/Event';
+import type { Menu } from '../types/Menu';
+import type { MenuItem } from '../types/MenuItem';
+
+type ItemFormState = {
+  name: string;
+  category: string;
+  cost: string;
+  servingSizeLb: string;
+  recommendedPer100Guests: string;
+};
+
+const initialItemForm: ItemFormState = {
+  name: '',
+  category: 'Main',
+  cost: '0.00',
+  servingSizeLb: '0.5',
+  recommendedPer100Guests: '100',
+};
+
+const CATEGORIES = ['Appetizer', 'Main', 'Side', 'Dessert', 'Beverage'];
+
+function MenuDetailPage() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  const [activeTab, setActiveTab] = useState<'items' | 'events'>('items');
+  const [menu, setMenu] = useState<Menu | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [menuName, setMenuName] = useState('');
+  const [isSavingMenu, setIsSavingMenu] = useState(false);
+
+  const [itemForm, setItemForm] = useState<ItemFormState>(initialItemForm);
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [isSavingItem, setIsSavingItem] = useState(false);
+  const [busyEventId, setBusyEventId] = useState<number | null>(null);
+
+  // State for the Delete Modal
+  const [deleteItemTarget, setDeleteItemTarget] = useState<MenuItem | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const loadData = useCallback(async () => {
+    if (!id) {
+      setError('Invalid menu id.');
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [menuData, eventData] = await Promise.all([
+        fetchMenuById(id),
+        fetchEvents(),
+      ]);
+      setMenu(menuData);
+      setMenuName(menuData.name);
+      setEvents(eventData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load menu.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
+
+  const assignedEventIds = useMemo(
+    () => new Set((menu?.events ?? []).map((event) => event.id)),
+    [menu?.events]
+  );
+
+  const resetItemForm = () => {
+    setItemForm(initialItemForm);
+    setEditingItemId(null);
+  };
+
+  const handleSaveMenu = async () => {
+    if (!menu) return;
+    const trimmed = menuName.trim();
+    if (!trimmed) return;
+
+    setIsSavingMenu(true);
+    setError(null);
+    try {
+      await updateMenu(menu.id, { id: menu.id, name: trimmed });
+      setMenu((prev) => (prev ? { ...prev, name: trimmed } : prev));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update menu.');
+    } finally {
+      setIsSavingMenu(false);
+    }
+  };
+
+  const handleEditItem = (item: MenuItem) => {
+    setEditingItemId(item.id);
+    setItemForm({
+      name: item.name,
+      category: item.category,
+      cost: String(item.cost),
+      servingSizeLb: String(item.servingSizeLb),
+      recommendedPer100Guests: String(item.recommendedPer100Guests),
+    });
+  };
+
+  const handleSaveItem = async () => {
+    if (!menu) return;
+
+    const name = itemForm.name.trim();
+    const category = itemForm.category;
+    const cost = Number(itemForm.cost);
+    const servingSizeLb = Number(itemForm.servingSizeLb);
+    const recommendedPer100Guests = Number(itemForm.recommendedPer100Guests);
+
+    if (!name || !category) {
+      setError('Item name and category are required.');
+      return;
+    }
+
+    setIsSavingItem(true);
+    setError(null);
+
+    const payload = {
+      name,
+      category,
+      cost,
+      servingSizeLb,
+      recommendedPer100Guests,
+      menuId: menu.id,
+    };
+
+    try {
+      if (editingItemId === null) {
+        const created = await createMenuItem(payload);
+        setMenu((prev) =>
+          prev
+            ? { ...prev, menuItems: [...(prev.menuItems ?? []), created] }
+            : prev
+        );
+      } else {
+        await updateMenuItem(editingItemId, { id: editingItemId, ...payload });
+        setMenu((prev) =>
+          prev
+            ? {
+                ...prev,
+                menuItems: (prev.menuItems ?? []).map((item) =>
+                  item.id === editingItemId ? { ...item, ...payload } : item
+                ),
+              }
+            : prev
+        );
+      }
+      resetItemForm();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to save menu item.'
+      );
+    } finally {
+      setIsSavingItem(false);
+    }
+  };
+
+  // NEW: Converted to use the modal instead of window.confirm
+  const handleConfirmDelete = async () => {
+    if (!menu || !deleteItemTarget) return;
+
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deleteMenuItem(deleteItemTarget.id);
+      setMenu((prev) =>
+        prev
+          ? {
+              ...prev,
+              menuItems: (prev.menuItems ?? []).filter(
+                (mi) => mi.id !== deleteItemTarget.id
+              ),
+            }
+          : prev
+      );
+      if (editingItemId === deleteItemTarget.id) resetItemForm();
+      setDeleteItemTarget(null); // Close the modal on success
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to delete menu item.'
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleAssignmentToggle = async (eventId: number) => {
+    if (!menu) return;
+    setBusyEventId(eventId);
+    setError(null);
+    try {
+      if (assignedEventIds.has(eventId)) {
+        await unassignMenuFromEvent(menu.id, eventId);
+      } else {
+        await assignMenuToEvent(menu.id, eventId);
+      }
+      await loadData();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to update assignments.'
+      );
+    } finally {
+      setBusyEventId(null);
+    }
+  };
+
+  if (isLoading) return <div className="alert alert-info">Loading menu...</div>;
+  if (!menu)
+    return (
+      <div>
+        <button
+          className="btn btn-secondary mb-3"
+          onClick={() => navigate('/menus')}
+        >
+          Back
+        </button>
+        <div className="alert alert-warning">Menu not found.</div>
+      </div>
+    );
+
+  return (
+    <div className="page-container">
+      <button
+        className="btn btn-secondary mb-3"
+        onClick={() => navigate('/menus')}
+      >
+        ← Back
+      </button>
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      <div className="card p-4 mb-4">
+        <h2 className="mb-3">Edit Menu Setup</h2>
+        <div className="row" style={{ rowGap: 'var(--space-3)' }}>
+          <div className="col-12 col-md-8">
+            <label htmlFor="menuName">Menu Name</label>
+            <input
+              id="menuName"
+              className="form-control"
+              value={menuName}
+              onChange={(e) => setMenuName(e.target.value)}
+              disabled={isSavingMenu}
+            />
+          </div>
+          <div className="col-12 col-md-4 d-flex align-items-end">
+            <button
+              className="btn btn-primary w-100"
+              onClick={() => void handleSaveMenu()}
+              disabled={isSavingMenu || !menuName.trim()}
+            >
+              {isSavingMenu ? 'Saving...' : 'Save Name'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ul className="nav nav-tabs mb-4">
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === 'items' ? 'active font-weight-bold' : ''}`}
+            onClick={() => setActiveTab('items')}
+          >
+            Menu Items
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === 'events' ? 'active font-weight-bold' : ''}`}
+            onClick={() => setActiveTab('events')}
+          >
+            Assigned Events
+          </button>
+        </li>
+      </ul>
+
+      {activeTab === 'items' && (
+        <div className="card p-4">
+          <h3 className="mb-3">Menu Items</h3>
+          {(menu.menuItems ?? []).length === 0 ? (
+            <p className="text-muted">
+              No items yet. Add your first menu item below.
+            </p>
+          ) : (
+            <table className="table table-hover mb-4">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Cost ($)</th>
+                  <th>Serving Size (lbs)</th>
+                  <th>Recommended / 100 Guests</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(menu.menuItems ?? []).map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.name}</td>
+                    <td>{item.category}</td>
+                    <td>${item.cost.toFixed(2)}</td>
+                    <td>{item.servingSizeLb} lbs</td>
+                    <td>{item.recommendedPer100Guests}</td>
+                    <td className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => handleEditItem(item)}
+                        disabled={isSavingItem}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => setDeleteItemTarget(item)} // NEW: Triggers the modal
+                        disabled={isSavingItem}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <div className="row" style={{ rowGap: 'var(--space-3)' }}>
+            <div className="col-12 col-md-2">
+              <label>Item Name</label>
+              <input
+                className="form-control"
+                value={itemForm.name}
+                onChange={(e) =>
+                  setItemForm((prev) => ({ ...prev, name: e.target.value }))
+                }
+                disabled={isSavingItem}
+              />
+            </div>
+            <div className="col-12 col-md-2">
+              <label>Category</label>
+              <select
+                className="form-select"
+                value={itemForm.category}
+                onChange={(e) =>
+                  setItemForm((prev) => ({ ...prev, category: e.target.value }))
+                }
+                disabled={isSavingItem}
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-6 col-md-2">
+              <label>Cost ($)</label>
+              <input
+                type="number"
+                step="0.01"
+                className="form-control"
+                value={itemForm.cost}
+                onChange={(e) =>
+                  setItemForm((prev) => ({ ...prev, cost: e.target.value }))
+                }
+                disabled={isSavingItem}
+              />
+            </div>
+            <div className="col-6 col-md-2">
+              <label>Serving (lbs)</label>
+              <input
+                type="number"
+                step="0.1"
+                className="form-control"
+                value={itemForm.servingSizeLb}
+                onChange={(e) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    servingSizeLb: e.target.value,
+                  }))
+                }
+                disabled={isSavingItem}
+              />
+            </div>
+            <div className="col-6 col-md-2">
+              <label>Rec. / 100 Guests</label>
+              <input
+                type="number"
+                step="1"
+                className="form-control"
+                value={itemForm.recommendedPer100Guests}
+                onChange={(e) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    recommendedPer100Guests: e.target.value,
+                  }))
+                }
+                disabled={isSavingItem}
+              />
+            </div>
+            <div className="col-12 col-md-2 d-flex align-items-end gap-2">
+              <button
+                className="btn btn-primary w-100"
+                onClick={() => void handleSaveItem()}
+                disabled={isSavingItem}
+              >
+                {isSavingItem ? 'Saving...' : editingItemId ? 'Update' : 'Add'}
+              </button>
+              {editingItemId !== null && (
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={resetItemForm}
+                  disabled={isSavingItem}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'events' && (
+        <div className="card p-4">
+          <h3 className="mb-3">Assign To Events</h3>
+          <table className="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((event) => {
+                const isAssigned = assignedEventIds.has(event.id);
+                return (
+                  <tr key={event.id}>
+                    <td>{event.name}</td>
+                    <td>{new Date(event.date).toLocaleDateString()}</td>
+                    <td>{isAssigned ? 'Assigned' : 'Not Assigned'}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${isAssigned ? 'btn-outline-secondary' : 'btn-primary'}`}
+                        disabled={busyEventId === event.id}
+                        onClick={() => void handleAssignmentToggle(event.id)}
+                      >
+                        {isAssigned ? 'Unassign' : 'Assign'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* NEW: The Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        open={deleteItemTarget !== null}
+        itemName={deleteItemTarget?.name ?? ''}
+        isDeleting={isDeleting}
+        onClose={() => setDeleteItemTarget(null)}
+        onConfirm={() => void handleConfirmDelete()}
+      />
+    </div>
+  );
+}
+
+export default MenuDetailPage;

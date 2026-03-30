@@ -63,25 +63,14 @@ export default function FoodWasteChart({ events }: Props) {
       },
     },
     scales: {
-      y: { beginAtZero: true, title: { display: true, text: 'Pounds (lbs)' } },
-      x: { title: { display: true, text: 'Event Date' } },
+      y: { beginAtZero: true, title: { display: true, text: 'Lbs' } },
     },
   };
 
-  if (sorted.length === 0) {
-    return (
-      <div className="metric-card">
-        <h3 className="metric-label">Food Waste Over Time</h3>
-        <p className="text-muted">
-          No food waste data yet. Add post-event data to see trends.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="metric-card">
-      <div style={{ height: 300 }}>
+      <h3 className="metric-label">Food Waste Over Time</h3>
+      <div style={{ height: 220 }}>
         <Line data={data} options={options} />
       </div>
     </div>
