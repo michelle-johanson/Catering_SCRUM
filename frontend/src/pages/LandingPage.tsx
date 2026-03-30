@@ -13,7 +13,7 @@ function LandingPage() {
       {/* Navbar */}
       <div className="landing-navbar">
         <div className="nav-left">
-          Catering Management
+          Cater.io
         </div>
 
         <div className="nav-right">
