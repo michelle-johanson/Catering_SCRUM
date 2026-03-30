@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { fetchEventById } from '../api/eventService';
+import CreateEventModal from '../components/modals/CreateEventModal';
 import {
   assignMenuToEvent,
   createMenu,
@@ -17,6 +18,9 @@ import type { Menu } from '../types/Menu';
 import type { Task } from '../types/Task';
 
 function EventDetailPage() {
+
+    // Modal state for editing event
+    const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
@@ -298,11 +302,21 @@ function EventDetailPage() {
           <div className="d-flex gap-2">
             <button
               className="btn btn-secondary"
-              onClick={() => navigate(`/events/${event.id}/edit`)}
+              onClick={() => setModalOpen(true)}
             >
               Edit
             </button>
           </div>
+              {/* Edit Event Modal */}
+              <CreateEventModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSuccess={(updatedEvent) => {
+                  setEvent(updatedEvent);
+                  setModalOpen(false);
+                }}
+                editingEvent={event}
+              />
         </div>
 
         <div className="detail-tabs">

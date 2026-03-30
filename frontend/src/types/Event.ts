@@ -10,6 +10,8 @@ export type Event = {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  clientName?: string;
+  clientContact?: string;
   companyId: number;
   createdByUserId: number;
   createdByUser?: User;

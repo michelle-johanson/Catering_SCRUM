@@ -24,6 +24,10 @@ public class Event
 
     public decimal? TotalSales { get; set; }
 
+    public string? ClientName { get; set; }
+
+    public string? ClientContact { get; set; }
+
     [Required]
     public int CompanyId { get; set; }
 

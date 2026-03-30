@@ -258,6 +258,10 @@
   to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
+.app-modal-wide {
+  max-width: 720px;
+}
+
 .app-modal-header {
   padding: var(--space-6) var(--space-6) var(--space-4);
 }

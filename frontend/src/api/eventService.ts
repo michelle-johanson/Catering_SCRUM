@@ -11,6 +11,8 @@ export interface CreateEventRequest {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  clientName?: string;
+  clientContact?: string;
   createdByUserId: number;
   companyId: number;
 }
@@ -83,6 +85,8 @@ export interface UpdateEventRequest {
   foodWasteLbs?: number;
   totalCost?: number;
   totalSales?: number;
+  clientName?: string;
+  clientContact?: string;
   createdByUserId: number;
   companyId: number;
 }
