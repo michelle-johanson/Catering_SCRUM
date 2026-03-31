@@ -193,8 +193,8 @@ function TasksPage() {
         </div>
       )}
 
-      <div className="table-responsive bg-white rounded shadow-sm">
-        <table className="table table-hover align-middle mb-0">
+      <div className="table-responsive bg-white rounded shadow-sm mobile-cards-wrapper">
+        <table className="table table-hover table-mobile-cards align-middle mb-0">
           <thead className="table-light">
             <tr>
               <th>Status</th>
@@ -213,16 +213,18 @@ function TasksPage() {
               
               return (
                 <tr key={task.id}>
-                  <td><span className={`badge ${badgeClass}`}>{task.status.replace(/([A-Z])/g, ' $1').trim()}</span></td>
-                  <td>
-                    <div className="fw-bold">{task.title}</div>
+                  <td data-label="Status"><span className={`badge ${badgeClass}`}>{task.status.replace(/([A-Z])/g, ' $1').trim()}</span></td>
+                  <td data-label="Task">
+                    <div className="fw-bold text-capitalize">{task.title}</div>
                     {task.description && <div className="text-muted small">{task.description}</div>}
                   </td>
-                  <td>{eventName}</td>
-                  <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleOpenForm(task)}>Edit</button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => setDeleteTarget(task)}>Delete</button>
+                  <td data-label="Event">{eventName}</td>
+                  <td data-label="Due Date">{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}</td>
+                  <td data-label="Actions">
+                    <div className="d-flex gap-2 justify-content-end">
+                      <button className="btn btn-sm btn-outline-primary" onClick={() => handleOpenForm(task)}>Edit</button>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => setDeleteTarget(task)}>Delete</button>
+                    </div>
                   </td>
                 </tr>
               )

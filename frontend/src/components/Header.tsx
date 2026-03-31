@@ -26,7 +26,11 @@ function getPageTitle(pathname: string): { title: string; standalone: boolean } 
   return { title: '', standalone: false };
 }
 
-function Header() {
+interface HeaderProps {
+  toggleMobileNav?: () => void;
+}
+
+function Header({ toggleMobileNav }: HeaderProps) {
   const location = useLocation();
   const { title: pageTitle, standalone } = getPageTitle(location.pathname);
 
@@ -55,6 +59,15 @@ function Header() {
 
   return (
     <header className="app-header">
+      {toggleMobileNav && (
+        <button className="mobile-nav-toggle" onClick={toggleMobileNav} aria-label="Toggle Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+      )}
       <span className="app-header-company">{label}</span>
     </header>
   );
