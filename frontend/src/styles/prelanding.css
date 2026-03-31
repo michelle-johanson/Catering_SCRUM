@@ -166,3 +166,38 @@ h2 {
 .offer-card p {
   color: #6c757d;
 }
+
+/* 🔥 Mobile Optimization */
+@media (max-width: 768px) {
+  .landing-navbar {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .nav-left {
+    font-size: 1.8rem;
+  }
+
+  .nav-right .btn {
+    padding: 8px 16px;
+    font-size: 1rem;
+  }
+
+  .hero-content {
+    transform: translateY(-40px);
+    padding: 0 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-content p {
+    font-size: 1.25rem;
+  }
+
+  .offer-card {
+    margin-bottom: 20px;
+  }
+}

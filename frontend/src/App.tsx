@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
@@ -27,13 +28,17 @@ import StaffPage from './pages/StaffPage';
 function App() {
   useLocation(); // re-render App on navigation so isAuthenticated() stays current
   const loggedIn = isAuthenticated();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
     <div className={loggedIn ? 'app-layout' : ''}>
-      <Sidebar />
+      <Sidebar 
+        isMobileNavOpen={isMobileNavOpen} 
+        onCloseMobileNav={() => setIsMobileNavOpen(false)} 
+      />
 
       <div className={loggedIn ? 'main-wrapper' : ''}>
-        {loggedIn && <Header />}
+        {loggedIn && <Header toggleMobileNav={() => setIsMobileNavOpen(!isMobileNavOpen)} />}
         <main className={loggedIn ? 'page-content' : ''}>
           <Routes>
             {/* Public routes */}

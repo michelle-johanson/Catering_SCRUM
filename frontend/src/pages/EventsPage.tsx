@@ -80,8 +80,8 @@ function EventsPage() {
         </div>
       )}
 
-      <div className="card p-0">
-        <table className="table table-hover mb-0">
+      <div className="card p-0 mobile-cards-wrapper">
+        <table className="table table-hover table-mobile-cards mb-0">
           <thead>
             <tr>
               <th>Event Name</th>
@@ -111,23 +111,27 @@ function EventsPage() {
                     window.location.href = `/events/${e.id}`;
                   }}
                 >
-                  <td>{e.name}</td>
-                  <td>{new Date(e.date).toLocaleDateString()}</td>
-                  <td>{e.guestCount}</td>
-                  <td>${e.budget.toFixed(2)}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={(evt) => { evt.stopPropagation(); handleOpenEdit(e); }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={(evt) => { evt.stopPropagation(); setDeleteTarget({ id: e.id, name: e.name }); }}
-                    >
-                      Delete
-                    </button>
+                  <td data-label="Event Name">
+                    <span className="fw-bold text-capitalize">{e.name}</span>
+                  </td>
+                  <td data-label="Date">{new Date(e.date).toLocaleDateString()}</td>
+                  <td data-label="Guest Count">{e.guestCount}</td>
+                  <td data-label="Budget">${e.budget.toFixed(2)}</td>
+                  <td data-label="Actions">
+                    <div className="d-flex gap-2 justify-content-end">
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={(evt) => { evt.stopPropagation(); handleOpenEdit(e); }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={(evt) => { evt.stopPropagation(); setDeleteTarget({ id: e.id, name: e.name }); }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

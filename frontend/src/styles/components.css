@@ -115,3 +115,63 @@
   background-color: var(--color-accent-light);
   color: var(--color-accent);
 }
+
+/* -----------------------------------------------------------
+   Mobile Table Cards (.table-mobile-cards)
+   Transforms a table into a stacked card layout on mobile
+   ----------------------------------------------------------- */
+@media (max-width: 768px) {
+  .mobile-cards-wrapper {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  table.table-mobile-cards,
+  table.table-mobile-cards tbody,
+  table.table-mobile-cards tr,
+  table.table-mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  table.table-mobile-cards thead {
+    display: none;
+  }
+
+  table.table-mobile-cards tr {
+    margin-bottom: var(--space-4);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+  }
+
+  table.table-mobile-cards td {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: left;
+    border-bottom: var(--border);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  table.table-mobile-cards td:last-child {
+    border-bottom: none;
+  }
+
+  table.table-mobile-cards td::before {
+    content: attr(data-label);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding-right: var(--space-2);
+    width: 120px;
+    text-align: left;
+    flex-shrink: 0;
+  }
+}
